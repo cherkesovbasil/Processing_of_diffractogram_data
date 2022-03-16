@@ -28,49 +28,51 @@ data_position = {}
 
 absolute_error = {}
 
-# для изменения количества считываемых из документа строк, изменить эту величину
+# to change the number of lines read from the document, change this value
 pars_zone_numbers = 20
-# для изменения количества считываемых из документа столбцов, изменить эту величину
+# to change the number of columns read from the document, change this value
 pars_zone_len = 25
-# список столбцов-строк для считывания данных
+# list of column-rows to read data
 pars_list = []
 
 directory_expand = None
 
-srm_name = 'not readen'
+srm_name = 'not read'
 number_of_diffractograms = 0
 
 main_window_destroy = True
-# триггер для пересоздания главного окна при повторной прогонке программы, если данные не были найдены
+# trigger to recreate the main window when you run the program again, if no data was found
 check_for_no_answer = False
 
 
-
 def pars_location(i=pars_zone_len):
-    """Генерирует список координат для последующего считывания данных из документа excel"""
+    """Generates a list of coordinates to read the data from an Excel document"""
+
     global pars_list
     pars_list = []
     pars_zone_len_converted = int(i / 25)
-    # по значению переменной pars_zone_len создает список из букв и на его основе генеирует область парса по буквам
+
+    # creates a list of letters by the value of the pars_zone_len variable and generates a letter-by-letter parses
+    # area based on it
     pars_zone_len_sheet = []
     pars_zone_letters = ['']
+
     for x in [chr(i) for i in range(ord('A'), ord('Z') + 1)]:
         pars_zone_len_sheet.append(x)
     for x in range(pars_zone_len_converted):
         pars_zone_letters.append(pars_zone_len_sheet[x])
-    # Заполняет парс-лист для перебора столбцов документа букварём от A до Z, от AA до AZ и т.д.:
+
+    # fills in a parsed list to enumerate the columns of the document with letters from A to Z, AA to AZ, etc
     for zone in pars_zone_letters:
         for x in [chr(i) for i in range(ord('A'), ord('Z') + 1)]:
             pars_list.append(str(zone) + x)
 
 
 def file_location(directory):
-    """Открывает меню выбора файла и вгружает выбранный excel"""
+    """Opens the file selection menu and loads the selected Excel"""
+
     global sheet
     global directory_expand
-
-    # Эта штука должна что-то скрывать, но нифига не делает
-    # Tk().withdraw()
 
     if not directory:
         filename = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
@@ -78,17 +80,18 @@ def file_location(directory):
             return True
         else:
             directory_expand = filename
-            # вгружает таблицу excel в библиотеку openpyxl
+
+            # loads an Excel table into the openpyxl library
             wb = openpyxl.load_workbook(filename=filename)
             sheet = wb.active
     else:
-        # вгружает таблицу excel в библиотеку openpyxl
         wb = openpyxl.load_workbook(filename=directory)
         sheet = wb.active
 
 
 def pars(range_for_pars=pars_zone_numbers):
-    """Ищет в выгруженном листе все нужные данные, считывает, чистит, преобразует в удобный вид"""
+    """Searches all the necessary data in the uploaded sheet, cleans it, and converts it into a convenient form"""
+
     global nist_peak_position
     global data_position
     global pars_zone_numbers
@@ -97,19 +100,20 @@ def pars(range_for_pars=pars_zone_numbers):
     global check_for_no_answer
     global number_of_diffractograms
     global srm_name
-
-    def clear_unnecessary_elements(readen_values, first_index_to_clear):
-        """Удаляет ненужные данные из выгруженного списка, оставляя только интенсивности, hkl и положения пиков"""
-
-        if None in readen_values:
-            del readen_values[0:first_index_to_clear + 1]
-            last_index_none = readen_values.index(None)
-            del readen_values[last_index_none:]
-
     number_of_diffractograms = 0
+
+    def clear_unnecessary_elements(read_values, first_index_to_clear):
+        """Removes unnecessary data from the unloaded list, leaving only intensities, hkl, and peak positions"""
+
+        if None in read_values:
+            del read_values[0:first_index_to_clear + 1]
+            last_index_none = read_values.index(None)
+            del read_values[last_index_none:]
+
     for trigger in pars_list:
-        # по очереди считывает каждый столбец в документе в границах
-        # (pars_zone_len_numbers по столбцам; pars_zone_len по строкам) и вгружает в переменную values
+
+        # reads each column in the document in turn within the bounds
+        # (pars_zone_len_numbers by columns; pars_zone_len by rows) and loads it into the values variable
         values_variable = str(trigger) + '0:' + str(trigger) + '100'
         values = [v[0].value for v in sheet[values_variable]]
 
@@ -151,11 +155,11 @@ def pars(range_for_pars=pars_zone_numbers):
                 srm_name = 'SRM 1976b'
                 print(values)
 
-    # проверка на наличие считанных данных
+    # check for read data
     if len(data_position) < 2:
         res = messagebox.askquestion('Data not found', 'Expand the search area?')
 
-        # если "да", расширяет зону поиска и запускает процесс заново
+        # if "yes", expands the search area and starts the process anew
         if res == 'yes':
             main_window_destroy = False
             pars_zone_numbers += 60
@@ -164,7 +168,7 @@ def pars(range_for_pars=pars_zone_numbers):
             file_location(directory_expand)
             pars(pars_zone_numbers)
         elif res == 'no':
-            # триггер отмены, ибо иначе возникают проблемы с главным окном
+            # cancel trigger, because otherwise there are problems with the main window
             check_for_no_answer = True
             return None
         else:
@@ -172,14 +176,15 @@ def pars(range_for_pars=pars_zone_numbers):
 
 
 def sko_init(error, peak_hkl_1):
-    """Функция предварительной обработки данных перед ско (в начале создание словарей с нужным количеством элементов)"""
+    """The function of pre-processing data before the staple (creating dictionaries with the right number of items)"""
+
     global index_list
     global error_calculated_intensities
     global error_calculated_positions
     sko_result = {}
 
     def sko(intensities_positions):
-        """Находит СКО интенсивности / положения"""
+        """Finds the standard deviations of the intensity / position"""
 
         summ = 0
         summ_for_sqrt = 0
@@ -188,15 +193,15 @@ def sko_init(error, peak_hkl_1):
             if data_for_sko != 0 and len(intensities_positions) != 0:
                 summ += float(data_for_sko)
         average = summ / len(intensities_positions)
-        # разница в квадрате
+        # squared difference
         for data_for_sko in intensities_positions:
             difference = (float(data_for_sko) - average) * (float(data_for_sko) - average)
             squared_difference.append(difference)
-        # корень от суммы, деленный на количество элементов минус 1
+        # the root of the sum divided by the number of elements minus 1
         for items in squared_difference:
             summ_for_sqrt += items
         sqroot = math.sqrt(summ_for_sqrt / (len(squared_difference) - 1))
-        # результат предыдущего шага, умноженный на 100 и деленный на среднее значение (СКО) для интенсивностей
+        # the result of the previous step multiplied by 100 and divided by the average value for the intensities
         sko_results = sqroot * 100 / average
         result = {'exp_data': intensities_positions,
                   'average': average,
@@ -206,14 +211,14 @@ def sko_init(error, peak_hkl_1):
                   }
         return result
 
-    # генерирует два массива для данных по длине считанных значений пиков
+    # generates two arrays for data on the length of read peak values
     index_list = [str(i) for i in range(0, len(peak_hkl_1))]
     for i in index_list:
         error_calculated_positions.update({i: []})
     for i in index_list:
         error_calculated_intensities.update({i: []})
 
-    # преобразование списков интенсивностей/положений
+    # conversion of intensity/position lists
     for key, value in data_intensity.items():
         timer = 0
         for item in value:
@@ -241,10 +246,11 @@ def sko_init(error, peak_hkl_1):
 
 
 def abs_err():
-    """Вычисляет абсолютную погрешность"""
-    global absolute_error
+    """Calculates the absolute error"""
 
+    global absolute_error
     absolute_error_before_unification = {}
+
     for i in index_list:
         absolute_error_before_unification.update({i: []})
 
@@ -260,7 +266,7 @@ def abs_err():
                 difference = abs(difference_nist - difference_experimental)
             absolute_error_before_unification[str(peak_list.index(peak_position))].append(difference)
 
-    # Приведение к общему виду с СКО интенсивности/положения
+    # reduction to a common view with the standard deviation of the intensities/positions
     for i in range(len(peak_hkl)):
         if 'None information' not in absolute_error_before_unification[str(i)] and absolute_error_before_unification[
                     str(i)] != []:

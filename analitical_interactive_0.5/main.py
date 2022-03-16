@@ -1,3 +1,10 @@
+"""
+Secondary interface:
+- data postprocessing;
+- generating main GUI;
+- generating report (in development);
+"""
+
 from main_data_processing import *
 from tkinter import *
 
@@ -18,7 +25,7 @@ secondary_window_destroy = False
 
 
 def message_for_frames():
-    """Вычисляет минимальные, средние и максимальные значения погрешностей для вывода в основную рамку"""
+    """Calculates minimum, average and maximum error values for output to the main frame"""
 
     global sko_int
     global sko_pos
@@ -27,12 +34,12 @@ def message_for_frames():
     global sko_result_intens
     global sko_result_pos
 
-    # первая - минимальная, вторая - средняя, третья - максимальная погрешности для каждой переменной
+    # first - minimum, second - average, third - maximum error for each variable
     sko_pos = [[0, 1000], 0.0, [0, 0]]
     sko_int = [[0, 1000], 0.0, [0, 0]]
     abs_pos = [[0, 1000], 0.0, [0, 0]]
 
-    # минимум\максимум\среднее по СКО интенсивности
+    # min\max\avr in standard deviation of intensities
     list_for_min_max_avr = []
     for pos, data in sko_result_intens.items():
         if data != 'None information' and sko_result_intens[pos]['metrology_var'] == 1:
@@ -56,7 +63,7 @@ def message_for_frames():
         if len(list_for_min_max_avr) > 0:
             sko_int[1] = sko_int[1] / (len(list_for_min_max_avr) + 1)
 
-    # минимум\максимум\среднее по СКО положения
+    # min\max\avr in standard deviation of positions
     list_for_min_max_avr = []
     for pos, data in sko_result_pos.items():
         if data != 'None information' and sko_result_pos[pos]['metrology_var'] == 1 and data['exp_data']:
@@ -80,7 +87,7 @@ def message_for_frames():
         if len(list_for_min_max_avr) > 0:
             sko_pos[1] = sko_pos[1] / (len(list_for_min_max_avr) + 1)
 
-    # минимум\максимум\среднее по абсолютной погрешности
+    # min\max\avr in absolute error
     list_for_min_max_avr = []
     for pos, data in absolute_error.items():
         if 'None information' in data or not data['exp_data'] or data['metrology_var'] == 0:
@@ -96,7 +103,6 @@ def message_for_frames():
         else:
             list_for_min_max_avr.append(1964)
         abs_pos[0] = [peak_hkl[list_for_min_max_avr.index(min(list_for_min_max_avr))], min(list_for_min_max_avr)]
-
     summ = 0
     len_timer = 0
     for pos, data in absolute_error.items():
@@ -109,7 +115,7 @@ def message_for_frames():
     elif len(list_for_min_max_avr) > 0:
         abs_pos[1] = summ / len_timer
 
-    # костыль, если остается только 1 элемент, и тот с долбанутым значением
+    # if only one element for processing left
     if abs_pos[0][1] == 1964:
         abs_pos[0][1] = abs_pos[2][1]
 
@@ -117,7 +123,7 @@ def message_for_frames():
 
 
 def change_search_area():
-    """Создает два бегунка выбора количества считываемых строк и столбцов; прописывает в global"""
+    """Creates two sliders to select the number of rows and columns to be read from Excel file; writes it in global"""
 
     def write_pars_numbers(self):
         global pars_zone_numbers_local
@@ -146,7 +152,8 @@ def change_search_area():
 
 
 def open_file():
-    """Выполняет тело программы (расчёт)"""
+    """Executes the program body (calculation of deviations and errors)"""
+
     global sko_result_pos
     global sko_result_intens
     global reload_x
@@ -164,13 +171,13 @@ def open_file():
         main_window.destroy()
         return None
 
-    # основные расчёты и преобразования
+    # basic calculations and conversions
     sko_result_pos = sko_init(error_calculated_positions, peak_hkl)
     sko_result_intens = sko_init(error_calculated_intensities, peak_hkl)
     abs_err()
     message_for_frames()
 
-    # убирает первоначальные окна после выбора файла
+    # removes the initial windows after selecting a file
     if main_window_destroy and not secondary_window_destroy:
         main_window.destroy()
     if secondary_window_destroy:
@@ -179,19 +186,19 @@ def open_file():
     secondary_window = Tk()
     secondary_window.title("Metrology")
 
-    # отключает возможность изменения масштаба страницы
+    # disables the ability to zoom the page
     secondary_window.resizable(False, False)
 
     main_frame = LabelFrame(secondary_window)
     main_frame.pack(side=TOP)
 
-    # создает основные рамки
+    # creates the basic frames
     frame_for_checkbutton = LabelFrame(main_frame, bg='#dddddd')
     frame_for_down_buttons = LabelFrame(main_frame)
 
-    # for sko intensity
+    # for standard deviation of intensities
     frame3 = LabelFrame(main_frame)
-    # for sko position
+    # for standard deviation of positions
     frame4 = LabelFrame(main_frame)
     # for absolute error
     frame5 = LabelFrame(main_frame)
@@ -203,7 +210,7 @@ def open_file():
     frame4.pack(side=TOP)
     frame5.pack(side=TOP)
 
-    # рамки для СКО интенсивности
+    # frames for standard deviation of intensities
     frame3_1 = LabelFrame(frame3)
     frame3_2 = LabelFrame(frame3)
     frame3_3 = LabelFrame(frame3)
@@ -213,7 +220,7 @@ def open_file():
     frame3_3.pack(side=LEFT)
     frame3_4.pack(side=LEFT)
 
-    # рамки для СКО положения
+    # frames for standard deviation of positions
     frame4_1 = LabelFrame(frame4)
     frame4_2 = LabelFrame(frame4)
     frame4_3 = LabelFrame(frame4)
@@ -223,7 +230,7 @@ def open_file():
     frame4_3.pack(side=LEFT)
     frame4_4.pack(side=LEFT)
 
-    # рамки для абсолютной погрешности
+    # frames for absolute error
     frame5_1 = LabelFrame(frame5)
     frame5_2 = LabelFrame(frame5)
     frame5_3 = LabelFrame(frame5)
@@ -236,10 +243,9 @@ def open_file():
     hkl_for_frame = []
 
     def update_errors_for_frames():
-        """Обновляет данные в результатах метрологии, добавляя переменные триггеры для чекбоксов"""
+        """Updates data in metrology results by adding variable triggers for checkboxes"""
 
-        # добавляет в результаты проверку по выходам за значения, переменную для чекбоксов и цвет чекбокса
-
+        # adds a check for outputs over values; a variable for checkboxes, and the color of the checkbox
         for keys, values in sko_result_intens.items():
             if values != 'None information' and values['sko'] > 2:
                 values['checkbutton_variable'] = False
@@ -278,10 +284,10 @@ def open_file():
     update_errors_for_frames()
 
     class Labels:
-        """Конфигурация рамок 'СКО интенсивности', 'СКО положения' и 'Абсолютная погрешность'"""
+        """Frame configuration 'St.dev of intensities', 'St.dev of positions' and 'Absolute error'"""
 
         def __init__(self):
-            # рамка СКО ИНТЕНСИВНОСТИ
+            # frame for standard deviation of intensities
             lbl_main_1 = Label(frame3_1, text='СКО Интенсивности:', width=63, bg='lightgreen')
             lbl_main_1.pack(side=TOP)
 
@@ -306,7 +312,7 @@ def open_file():
             self.lbl_hkl_max_3_1 = Label(frame3_4, width=20, bg='grey70')
             self.lbl_hkl_max_3_1.pack(side=TOP)
 
-            # рамка СКО ПОЛОЖЕНИЯ
+            # frame for standard deviation of positions
             lbl_main_2 = Label(frame4_1, text='СКО Положения:', width=63, bg='lightgreen')
             lbl_main_2.pack(side=TOP)
 
@@ -331,7 +337,7 @@ def open_file():
             self.lbl_hkl_max_4_1 = Label(frame4_4, width=20, bg='grey70')
             self.lbl_hkl_max_4_1.pack(side=TOP)
 
-            # рамка АБСОЛЮТНОЙ ПОГРЕШНОСТИ
+            # frame for absolute error
             lbl_main_3 = Label(frame5_1, text='Абсолютная погрешность:', width=63, bg='lightgreen')
             lbl_main_3.pack(side=TOP)
 
@@ -357,9 +363,9 @@ def open_file():
             self.lbl_hkl_max_5_1.pack(side=TOP)
 
         def labels_config(self):
-            """Создание рамок 'СКО интенсивности', 'СКО положения' и 'Абсолютная погрешность'"""
+            """Frame generation 'St.dev of intensities', 'St.dev of positions' and 'Absolute error'"""
 
-            # переменные для изменения цвета и шрифта рамок максимальных значений при выходе за границы
+            # variables to change the color and font of the maximum frame values when going out of bounds
             sko_int_color = 'green2'
             sko_pos_color = 'green2'
             sko_avr_color = 'green2'
@@ -426,10 +432,10 @@ def open_file():
         message_for_frames()
         reload_x.labels_config()
 
-    # Проверяет положения и преобразует к единому виду
+    # Check positions and converts to a single form
     from main_data_processing import nist_peak_position
-    timer = 0
 
+    timer = 0
     max_len_of_key = []
 
     for key, value in sko_result_pos.items():
@@ -442,7 +448,7 @@ def open_file():
         else:
             hkl_for_frame.append(' ' + key + ' ')
 
-        # если инфы нет, то рамка деактивирована, если больше 100, то чуть меньше пробелов
+        # if there is no information, then the frame is deactivated, if over 100, then a little less gaps
         if len(value) <= 15:
 
             if float(value['exp_data'][1]) >= 100:
@@ -552,7 +558,7 @@ def open_file():
         secondary_window_destroy = True
         open_file()
 
-    # кнопки нового интерфейса
+    # new interface buttons
     reload_btn = Button(frame_for_down_buttons, text="Создать отчёт", width=20)
     again_btn = Button(frame_for_down_buttons, text="Выбрать другой файл", width=20, command=chose_another_file)
     info_btn = Button(frame_for_down_buttons, text="Информация", width=20, command=info_reload.reload)
@@ -560,7 +566,7 @@ def open_file():
     info_btn.pack(side=LEFT)
     reload_btn.pack(side=BOTTOM)
 
-    # задает размеры окна и помещает в центр экрана!
+    # sets the size of the window and places it in the center of the screen
     secondary_window.update_idletasks()
     secondary_w = secondary_window.geometry()
     secondary_w = secondary_w.split('+')
@@ -577,48 +583,25 @@ def open_file():
     secondary_window.geometry('+{}+{}'.format(secondary_width, secondary_height))
 
 
-#
-#
-# СРЕДНЕЕ ПО СКО ПОЛОЖЕНИЯ И ИНТЕНСИВНОСТИ, КОГДА ВЫБРАН ТОЛЬКО 1 СПЕКТР. И ВООБЩЕ, МОЖНО ЛИ ТАК?
-#
-#  #####################  ПЕРЕРАБОТАТЬ РАБОТУ ОБНОВЛЕНИЯ ЛЭЙБЛОВ ПО ПРОЖАТИИ ГАЛОЧЕК  ########################### DONE
-#
-#  ПОДПИСАТЬ ВСЕ ФУНКЦИИ И СТРАНИЦЫ, ОСТАВИТЬ МЕТКУ АВТОРСТВА
-#
-#  ############ НАЗВАНИЕ ОТКРЫТОГО ФАЙЛА ОТОБРАЖАТЬ... В ЗАГЛАВИИ ВТОРИЧНОГО МЕНЮ???  ########################### DONE
-#
-#  РАЗРАБОТКА КНОПКИ "СОЗДАТЬ ОТЧЁТ"
-#
-#  ######################################################## РАЗРАБОТКА КНОПКИ "ИНФО"  ########################### DONE
-#
-#  ######################################### РАЗРАБОТКА КНОПКИ "ВЫБРАТЬ ДРУГОЙ ФАЙЛ"  ########################### DONE
-#
-#  РАЗРАБОТКА ИНТЕРАКТИВНОГО ГРАФИКА ОТКЛОНЕНИЙ. ТОЧНЕЕ, ТРЁХ ГРАФИКОВ В ОДНОМ (ПО ИНТЕНСИВНОСТИ И ДВУМ ПОЛОЖЕНИЯМ)
-#
-#  НИЖНЯЯ ОСЬ - ГРАДУСЫ. ВЕРТИКАЛЬНАЯ - ОТКЛОНЕНИЯ С КРАСНЫМИ ЗОНАМИ. ГРАФИК ДОЛЖЕН ОБНОВЛЯТСЯ ПРИ ПРОЖАТИИ ГАЛОЧЕК
-#
-#
-
-
 main_window = Tk()
 main_window.title("Metrology")
 
-# отключает возможность изменения масштаба страницы
+# disables the ability to zoom the page
 main_window.resizable(False, False)
 
-# рамка для первоначального интерфейса
+# frame for the main interface
 frame1 = LabelFrame(main_window)
 frame1.pack(side=LEFT)
 
-# вывод информации об абсолютной погрешности в GUI
+# outputs the information about the absolute error in the GUI
 start_btn = Button(frame1, text="Выбрать \nи обработать файл  ", relief=GROOVE, width=18, command=open_file)
 start_btn.pack(side=TOP)
 search_area_button = Button(frame1, text="Область поиска\n данных в документе", relief=GROOVE, width=18,
                             command=change_search_area)
 search_area_button.pack(side=TOP)
 
-# задает размеры окна и помещает в центр экрана!
-main_window.update_idletasks()  # Обновляет инфу после создания всех рамок. Но открывает консольку. Можно ли отказаться?
+# sets the size of the window and places it in the center of the screen
+main_window.update_idletasks()  # Updates information after all frames are created
 s = main_window.geometry()
 s = s.split('+')
 s = s[0].split('x')
