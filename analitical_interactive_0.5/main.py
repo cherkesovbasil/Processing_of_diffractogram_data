@@ -62,6 +62,8 @@ def message_for_frames():
             sko_int[1] += things
         if len(list_for_min_max_avr) > 0:
             sko_int[1] = sko_int[1] / (len(list_for_min_max_avr) + 1)
+            print(sko_int[1])
+            print(len(list_for_min_max_avr) + 1)
 
     # min\max\avr in standard deviation of positions
     list_for_min_max_avr = []

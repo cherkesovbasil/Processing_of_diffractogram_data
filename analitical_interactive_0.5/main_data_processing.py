@@ -146,14 +146,12 @@ def pars(range_for_pars=pars_zone_numbers):
                 clear_unnecessary_elements(values, first_index)
                 nist_peak_position = values
                 srm_name = 'SRM 1976c'
-                print(values)
 
             elif 'SRM 1976b' in values:
                 first_index = values.index('SRM 1976b')
                 clear_unnecessary_elements(values, first_index)
                 nist_peak_position = values
                 srm_name = 'SRM 1976b'
-                print(values)
 
     # check for read data
     if len(data_position) < 2:
