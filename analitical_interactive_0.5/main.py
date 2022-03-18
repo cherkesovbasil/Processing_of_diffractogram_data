@@ -58,12 +58,11 @@ def message_for_frames():
             sko_int[2].append(compare_2)
         while 1964 in list_for_min_max_avr:
             list_for_min_max_avr.remove(1964)
+        sko_int[1] = 0
         for things in list_for_min_max_avr:
             sko_int[1] += things
         if len(list_for_min_max_avr) > 0:
-            sko_int[1] = sko_int[1] / (len(list_for_min_max_avr) + 1)
-            print(sko_int[1])
-            print(len(list_for_min_max_avr) + 1)
+            sko_int[1] = sko_int[1] / (len(list_for_min_max_avr))
 
     # min\max\avr in standard deviation of positions
     list_for_min_max_avr = []
@@ -84,10 +83,11 @@ def message_for_frames():
             sko_pos[2].append(compare_2)
         while 1964 in list_for_min_max_avr:
             list_for_min_max_avr.remove(1964)
+        sko_pos[1] = 0
         for things in list_for_min_max_avr:
             sko_pos[1] += things
         if len(list_for_min_max_avr) > 0:
-            sko_pos[1] = sko_pos[1] / (len(list_for_min_max_avr) + 1)
+            sko_pos[1] = sko_pos[1] / (len(list_for_min_max_avr))
 
     # min\max\avr in absolute error
     list_for_min_max_avr = []
@@ -259,8 +259,7 @@ def open_file():
                 values['checkbutton_variable_for_def'] = IntVar()
 
         for keys, values in sko_result_pos.items():
-            if values != 'None information' and round(values['sko']) >= 0.02 and sko_result_pos[peak_hkl[keys]][
-                        'metrology_var'] == 1:
+            if values != 'None information' and round(values['sko']) >= 0.02 and values['metrology_var'] == 1:
                 values['checkbutton_variable'] = False
                 values['checkbutton_variable_for_def'] = IntVar()
             elif values == 'None information':
@@ -272,6 +271,7 @@ def open_file():
         timer_trig = 0
         for keys, values in absolute_error.items():
             if 'None information' not in values and values != [] and max(values['exp_data']) > 0.02:
+                print(values)
                 absolute_error[peak_hkl[timer_trig]]['checkbutton_variable'] = False
                 absolute_error[peak_hkl[timer_trig]]['checkbutton_variable_for_def'] = IntVar()
 
@@ -558,7 +558,6 @@ def open_file():
         def reload(self):
             """is responsible for the appearance/disappearance of the information field"""
 
-            global open_close_trigger
             self.open_close_trigger += 1
             if self.open_close_trigger == 1:
                 self.information_frame.pack(side=TOP)

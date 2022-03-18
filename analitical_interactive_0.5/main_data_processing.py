@@ -101,6 +101,7 @@ def pars(range_for_pars=pars_zone_numbers):
     global number_of_diffractograms
     global srm_name
     number_of_diffractograms = 0
+    data_position = {}
 
     def clear_unnecessary_elements(read_values, first_index_to_clear):
         """Removes unnecessary data from the unloaded list, leaving only intensities, hkl, and peak positions"""
