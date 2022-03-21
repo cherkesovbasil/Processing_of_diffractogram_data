@@ -7,6 +7,9 @@ Secondary interface:
 
 from main_data_processing import *
 from tkinter import *
+import docx
+from docx.shared import Pt
+from docx.enum.style import WD_STYLE_TYPE
 
 sko_result_intens = {}
 sko_result_pos = {}
@@ -270,10 +273,13 @@ def open_file():
 
         timer_trig = 0
         for keys, values in absolute_error.items():
+            #print(timer_trig)
+            #print(absolute_error)
             if 'None information' not in values and values != [] and max(values['exp_data']) > 0.02:
-                print(values)
+                #print(values)
                 absolute_error[peak_hkl[timer_trig]]['checkbutton_variable'] = False
                 absolute_error[peak_hkl[timer_trig]]['checkbutton_variable_for_def'] = IntVar()
+                #print(values)
 
             elif 'None information' in values or values == []:
                 absolute_error[peak_hkl[timer_trig]] = 'None information'
@@ -575,13 +581,27 @@ def open_file():
         secondary_window_destroy = True
         open_file()
 
+    def make_report():
+        """Function for 'make report' button. Making report and saving it into the 'word' file"""
+        filename = askopenfilename()
+        report = docx.Document(filename)
+
+        report.style.font.name = Pt(10)
+
+        par1 = report.add_paragraph('7.4 Определение абсолютной погрешности дифрактометра при измерении угловых положений '
+                             'дифракционных максимумов.')
+        par2 = report.add_paragraph('2Θизм ' + peak_hkl[0] + ' - ' + )
+        #report.add_paragraph('2ΘСО (012) - (104) = 25,575° - 35,148° = 9,573° – разность значений позиций пиков СО.')
+        #report.add_paragraph('2Θизм - 2ΘСО = 9,57° - 9,573°= - 0,003°')
+        report.save(filename)
+
     # new interface buttons
-    reload_btn = Button(frame_for_down_buttons, text="Создать отчёт", width=20)
-    again_btn = Button(frame_for_down_buttons, text="Выбрать другой файл", width=20, command=chose_another_file)
+    report_btn = Button(frame_for_down_buttons, text="Создать отчёт", width=20, command=make_report)
+    another_file_btn = Button(frame_for_down_buttons, text="Выбрать другой файл", width=20, command=chose_another_file)
     info_btn = Button(frame_for_down_buttons, text="Информация", width=20, command=info_reload.reload)
-    again_btn.pack(side=LEFT)
+    another_file_btn.pack(side=LEFT)
     info_btn.pack(side=LEFT)
-    reload_btn.pack(side=BOTTOM)
+    report_btn.pack(side=BOTTOM)
 
     # sets the size of the window and places it in the center of the screen
     secondary_window.update_idletasks()
