@@ -275,13 +275,9 @@ def open_file():
 
         timer_trig = 0
         for keys, values in absolute_error.items():
-            #print(timer_trig)
-            #print(absolute_error)
             if 'None information' not in values and values != [] and max(values['exp_data']) > 0.02:
-                #print(values)
                 absolute_error[peak_hkl[timer_trig]]['checkbutton_variable'] = False
                 absolute_error[peak_hkl[timer_trig]]['checkbutton_variable_for_def'] = IntVar()
-                #print(values)
 
             elif 'None information' in values or values == []:
                 absolute_error[peak_hkl[timer_trig]] = 'None information'
@@ -438,8 +434,6 @@ def open_file():
         def reload_absolute_error():
             """вычисляет заново абсолютную погрешность, отталкиваясь от новых значени чекбаттонов"""
 
-
-
             # обновление значений булевой переменной по нажатию чекбаттонов
             for keys, values in absolute_error.items():
                 if values != 'None information':
@@ -462,54 +456,48 @@ def open_file():
             for hkls in absolute_error_checked:
                 indexes.append(peak_hkl.index(hkls))
 
-            first_index = indexes[0]
+            # вычисляет заново абсолютнуую погрешность
             absolute_error_before_unification = {}
-
             from main_data_processing import data_position
             global diff
             for name, peak_list in data_position.items():
                 diff = []
+
+                # сбрасывает индексы у первого элемента, от которого идет отсчёт
                 for index in indexes:
-                    print(indexes)
-                    difference_experimental = (float(peak_list[index]) - float(peak_list[first_index]))
+                    if index == indexes[0]:
+                        absolute_error[peak_hkl[index]]['metrology_var'] = 0
+                    else:
+                        absolute_error[peak_hkl[index]]['metrology_var'] = 1
+
+                    difference_experimental = (float(peak_list[index]) - float(peak_list[indexes[0]]))
                     difference_nist = (float(nist_peak_position[index])
-                                       - float(nist_peak_position[first_index]))
+                                       - float(nist_peak_position[indexes[0]]))
                     difference = abs(difference_nist - difference_experimental)
                     diff.append(difference)
-                    print(diff)
-                    differences[index] = diff
-                    print('[index]')
-                    print(index)
-            print(differences)
+                absolute_error_before_unification[name] = diff
+
+            # обновляет данные о погрешности
+            for index in indexes:
+                absolute_error[peak_hkl[index]]['exp_data'] = []
+                for items in absolute_error_before_unification.values():
+                    absolute_error[peak_hkl[index]]['exp_data'].append(items[indexes.index(index)])
+
+            #
+            #
+            #
 
 
-            print('first_index')
-            print(first_index)
-
-            print('data_position')
-            print(data_position)
-            print('absolute_error')
-            print(absolute_error)
-            print('absolute_error_checked')
-            print(absolute_error_checked)
-            print('sko_result_intens')
-            print(sko_result_intens)
-            print('indexes')
-            print(indexes)
+            #
+            # Криво считывает минимальные значения (может и остальные, нужно проверить) + красные рамки не обновляются
+            #
 
 
-
-
-
-
-
-
-
-
+            #
+            #
+            #
 
         reload_absolute_error()
-
-
         message_for_frames()
         reload_x.labels_config()
 
