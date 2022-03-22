@@ -8,8 +8,7 @@ Secondary interface:
 from main_data_processing import *
 from tkinter import *
 import docx
-from docx.shared import Pt
-from docx.enum.style import WD_STYLE_TYPE
+from docx import Document
 
 sko_result_intens = {}
 sko_result_pos = {}
@@ -20,6 +19,9 @@ pars_zone_len_local = 25
 sko_pos = []
 sko_int = []
 abs_pos = []
+
+differences = {}
+diff = []
 
 something = main_window_destroy
 reload_x = 0
@@ -433,15 +435,81 @@ def open_file():
         updating the information in the graphical interface
         """
 
-        for keys, values in absolute_error.items():
-            if values != 'None information':
-                # receives information one by one about all states of the buttons
-                absolute_error[keys]['metrology_var'] = absolute_error[keys][
-                    'checkbutton_variable_for_def'].get()
-                sko_result_pos[keys]['metrology_var'] = absolute_error[keys][
-                    'checkbutton_variable_for_def'].get()
-                sko_result_intens[keys]['metrology_var'] = absolute_error[keys][
-                    'checkbutton_variable_for_def'].get()
+        def reload_absolute_error():
+            """вычисляет заново абсолютную погрешность, отталкиваясь от новых значени чекбаттонов"""
+
+
+
+            # обновление значений булевой переменной по нажатию чекбаттонов
+            for keys, values in absolute_error.items():
+                if values != 'None information':
+                    # receives information one by one about all states of the buttons
+                    absolute_error[keys]['metrology_var'] = absolute_error[keys][
+                        'checkbutton_variable_for_def'].get()
+                    sko_result_pos[keys]['metrology_var'] = absolute_error[keys][
+                        'checkbutton_variable_for_def'].get()
+                    sko_result_intens[keys]['metrology_var'] = absolute_error[keys][
+                        'checkbutton_variable_for_def'].get()
+
+            # прогонка массива для нахождения всех активных ключей
+            absolute_error_checked = []
+            for keys, values in absolute_error.items():
+                if values != 'None information' and values is not None and values['metrology_var'] == 1:
+                    absolute_error_checked.append(keys)
+
+            # преобразование активных ключей в индексы для обращения к изначальным данным
+            indexes = []
+            for hkls in absolute_error_checked:
+                indexes.append(peak_hkl.index(hkls))
+
+            first_index = indexes[0]
+            absolute_error_before_unification = {}
+
+            from main_data_processing import data_position
+            global diff
+            for name, peak_list in data_position.items():
+                diff = []
+                for index in indexes:
+                    print(indexes)
+                    difference_experimental = (float(peak_list[index]) - float(peak_list[first_index]))
+                    difference_nist = (float(nist_peak_position[index])
+                                       - float(nist_peak_position[first_index]))
+                    difference = abs(difference_nist - difference_experimental)
+                    diff.append(difference)
+                    print(diff)
+                    differences[index] = diff
+                    print('[index]')
+                    print(index)
+            print(differences)
+
+
+            print('first_index')
+            print(first_index)
+
+            print('data_position')
+            print(data_position)
+            print('absolute_error')
+            print(absolute_error)
+            print('absolute_error_checked')
+            print(absolute_error_checked)
+            print('sko_result_intens')
+            print(sko_result_intens)
+            print('indexes')
+            print(indexes)
+
+
+
+
+
+
+
+
+
+
+
+        reload_absolute_error()
+
+
         message_for_frames()
         reload_x.labels_config()
 
@@ -583,17 +651,77 @@ def open_file():
 
     def make_report():
         """Function for 'make report' button. Making report and saving it into the 'word' file"""
+
+
+
+        records_table_1 = []
+
+
+
+
+
         filename = askopenfilename()
-        report = docx.Document(filename)
+        #report = docx.Document(filename)
+        print(filename)
 
-        report.style.font.name = Pt(10)
+        document = Document()  # docs.Document()!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        par1 = report.add_paragraph('7.4 Определение абсолютной погрешности дифрактометра при измерении угловых положений '
-                             'дифракционных максимумов.')
-        par2 = report.add_paragraph('2Θизм ' + peak_hkl[0] + ' - ' + )
-        #report.add_paragraph('2ΘСО (012) - (104) = 25,575° - 35,148° = 9,573° – разность значений позиций пиков СО.')
-        #report.add_paragraph('2Θизм - 2ΘСО = 9,57° - 9,573°= - 0,003°')
-        report.save(filename)
+        par1 = document.add_paragraph('8.4 Определение метрологических характеристик').bold = True
+        par2 = document.add_paragraph('8.4.1 Определение пределов допускаемой абсолютной погрешности при измерении угловых положений дифракционных максимумов')
+
+        def create_table(document, headers, rows, style='Table Grid'):
+            cols_number = len(headers)
+
+            table = document.add_table(rows=1, cols=cols_number)
+            table.style = style
+
+            hdr_cells = table.rows[0].cells
+            for i in range(cols_number):
+                hdr_cells[i].text = headers[i]
+
+            for row in rows:
+                row_cells = table.add_row().cells
+                for i in range(cols_number):
+                    row_cells[i].text = str(row[i])
+
+            return table
+
+
+
+        for hkl in peak_hkl:
+            for key, value in absolute_error.items():
+                from main_data_processing import data_position
+
+
+                #record_table_1[]
+
+
+
+
+
+        headers = ('№ п/п', 'Наименование параметра', 'Единицы измерения', 'Значение')
+        records_table1 = (
+            (0, 'Nan', 'Nan', 0),
+            (1, 'Первая величина', '-/-', 0),
+            (2, 'Вторая величина', '-/-', 'Базальт'),
+            (3, 'Третья величина', 'м^2/ч', 0)
+        )
+
+        table1 = create_table(document, headers, records_table1)
+
+        document.add_paragraph()
+
+        rows = [
+            [x, x, x * x] for x in range(1, 10)
+        ]
+        table2 = create_table(document, ('x', 'y', 'x * y'), rows)
+
+        document.save(filename)
+
+
+
+
+
 
     # new interface buttons
     report_btn = Button(frame_for_down_buttons, text="Создать отчёт", width=20, command=make_report)

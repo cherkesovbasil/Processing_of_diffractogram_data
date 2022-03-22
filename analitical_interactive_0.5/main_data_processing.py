@@ -122,6 +122,7 @@ def pars(range_for_pars=pars_zone_numbers):
             if 'Spectrum ' + str(number) + ', 2θ' in values:
                 clear_unnecessary_elements(values, values.index('Spectrum ' + str(number) + ', 2θ'))
                 data_position['spectrum_' + str(number) + '_position'] = values
+
             if 'Spectrum ' + str(number) + ', counts' in values:
                 number_of_diffractograms += 1
                 clear_unnecessary_elements(values, values.index('Spectrum ' + str(number) + ', counts'))

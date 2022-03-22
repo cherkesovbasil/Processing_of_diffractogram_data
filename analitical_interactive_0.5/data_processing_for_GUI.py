@@ -1,39 +1,40 @@
-"""
-Graphics window:
-- in development
-"""
-
-import tkinter as tk
-
-LARGE_FONT = ('Verdana', 12)
+from docx import Document
 
 
-class SeaofBTCapp(tk.Tk):
+def create_table(document, headers, rows, style='Table Grid'):
+    cols_number = len(headers)
 
-    def __int__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
-        container = tk.Frame(self)
-        container.pack(side='top', fill='both', expand=True)
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
-        self.frames = {}
-        frame = StartPage(container, self)
-        self.frames[StartPage] = frame
-        frame.grid(row=0, column=0, sticky='nsew')  # ew for stretch it to the left and right
-        self.show_frame(StartPage)
+    table = document.add_table(rows=1, cols=cols_number)
+    table.style = style
 
-    def show_frame(self, cont):
-        frame = self.frames[cont]
-        frame.tkraise()  # Поднимает меню над всеми окнами!!!
+    hdr_cells = table.rows[0].cells
+    for i in range(cols_number):
+        hdr_cells[i].text = headers[i]
 
+    for row in rows:
+        row_cells = table.add_row().cells
+        for i in range(cols_number):
+            row_cells[i].text = str(row[i])
 
-class StartPage(tk.Frame):
-
-    def __int__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text='start page', font=LARGE_FONT)
-        label.pack(pady=10, padx=10)
+    return table
 
 
-app = SeaofBTCapp()
-app.mainloop()
+document = Document()
+
+headers = ('№ п/п', 'Наименование параметра', 'Единицы измерения', 'Значение')
+records_table1 = (
+    (0, 'Nan', 'Nan', 0),
+    (1, 'Первая величина', '-/-', 0),
+    (2, 'Вторая величина', '-/-', 'Базальт'),
+    (3, 'Третья величина', 'м^2/ч', 0)
+)
+table1 = create_table(document, headers, records_table1)
+
+document.add_paragraph()
+
+rows = [
+    [x, x, x * x] for x in range(1, 10)
+]
+table2 = create_table(document, ('x', 'y', 'x * y'), rows)
+
+document.save("C:/Users/cherkesov/Desktop/Документ.docx")
