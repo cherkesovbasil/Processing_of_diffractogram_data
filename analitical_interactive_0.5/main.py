@@ -464,6 +464,7 @@ def open_file():
                 diff = []
 
                 # сбрасывает индексы у первого элемента, от которого идет отсчёт
+
                 for index in indexes:
                     if index == indexes[0]:
                         absolute_error[peak_hkl[index]]['metrology_var'] = 0
@@ -482,6 +483,31 @@ def open_file():
                 absolute_error[peak_hkl[index]]['exp_data'] = []
                 for items in absolute_error_before_unification.values():
                     absolute_error[peak_hkl[index]]['exp_data'].append(items[indexes.index(index)])
+
+            # обновляет рамки
+
+            timer_trig = 0
+            for keys, values in absolute_error.items():
+                if 'None information' not in values and values != [] and max(values['exp_data']) > 0.02:
+                    absolute_error[peak_hkl[timer_trig]]['checkbutton_variable'] = False
+                    globals()['chckbtn%d' % timer_trig].configure(fg='red')
+                elif 'None information' in values or values == []:
+                    absolute_error[peak_hkl[timer_trig]] = 'None information'
+                else:
+                    absolute_error[peak_hkl[timer_trig]]['checkbutton_variable'] = True
+                    globals()['chckbtn%d' % timer_trig].configure(fg='black')
+                timer_trig += 1
+            # ВОТ СЮДА ВКИНУТЬ ПРОВЕРКУ НА ПРОЖАТОСТЬ ЧЕКБАТТОНА, ИНАЧЕ ПРОЖАТЫЕ ОСТАЮТСЯ КРАСНЫМИ!!!
+            first_index_red = False
+            for keys, values in absolute_error.items():
+                if 'None information' not in values and values != []:
+                    if not values['checkbutton_variable'] and values['metrology_var']:
+                        first_index_red = True
+                        break
+            if first_index_red:
+                globals()['chckbtn%d' % indexes[0]].configure(fg='red')
+
+
 
             #
             #
@@ -506,6 +532,7 @@ def open_file():
 
     timer = 0
     max_len_of_key = []
+    chkbttn_variables = []
 
     for key, value in sko_result_pos.items():
         max_len_of_key.append(len(key))
@@ -523,51 +550,51 @@ def open_file():
             if float(value['exp_data'][1]) >= 100:
                 if absolute_error[key]['checkbutton_variable'] and sko_result_pos[key][
                             'checkbutton_variable'] and sko_result_intens[key]['checkbutton_variable']:
-                    chckbtn = Checkbutton(frame_for_checkbutton,
+                    globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
                                           text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[timer] + '°',
                                           bg='#dddddd',
                                           variable=absolute_error[peak_hkl[timer]][
                                               'checkbutton_variable_for_def'],
                                           command=reload)
-                    chckbtn.grid(row=timer, sticky=W, pady=0)
-                    Checkbutton.select(chckbtn)
+                    globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
+                    Checkbutton.select(globals()['chckbtn%d' % timer])
                 else:
-                    chckbtn = Checkbutton(frame_for_checkbutton,
+                    globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
                                           text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[timer] + '°',
                                           fg='red', bg='#dddddd', command=reload,
                                           variable=absolute_error[peak_hkl[timer]][
                                               'checkbutton_variable_for_def'])
-                    chckbtn.grid(row=timer, sticky=W, pady=0)
-                    Checkbutton.select(chckbtn)
+                    globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
+                    Checkbutton.select(globals()['chckbtn%d' % timer])
             else:
                 if absolute_error[key]['checkbutton_variable'] and sko_result_pos[key][
                             'checkbutton_variable'] and sko_result_intens[key]['checkbutton_variable']:
-                    chckbtn = Checkbutton(frame_for_checkbutton,
+                    globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
                                           text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[timer] + '°  ',
                                           bg='#dddddd',
                                           command=reload,
                                           variable=absolute_error[peak_hkl[timer]][
                                               'checkbutton_variable_for_def'])
-                    chckbtn.grid(row=timer, sticky=W, pady=0)
-                    Checkbutton.select(chckbtn)
+                    globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
+                    Checkbutton.select(globals()['chckbtn%d' % timer])
                 else:
-                    chckbtn = Checkbutton(frame_for_checkbutton,
+                    globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
                                           text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[timer] + '°  ',
                                           fg='red', bg='#dddddd', command=reload, variable=absolute_error
                                           [peak_hkl[timer]]['checkbutton_variable_for_def'])
-                    chckbtn.grid(row=timer, sticky=W, pady=0)
-                    Checkbutton.select(chckbtn)
+                    globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
+                    Checkbutton.select(globals()['chckbtn%d' % timer])
         else:
             if float(nist_peak_position[timer]) >= 100:
-                chckbtn = Checkbutton(frame_for_checkbutton,
+                globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
                                       text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[timer] + '°',
                                       bg='grey70', state=DISABLED)
-                chckbtn.grid(row=timer, sticky=W, pady=0)
+                globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
             else:
-                chckbtn = Checkbutton(frame_for_checkbutton,
+                globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
                                       text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[timer] + '°  ', bg='grey70',
                                       state=DISABLED)
-                chckbtn.grid(row=timer, sticky=W, pady=0)
+                globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
 
         timer += 1
 
