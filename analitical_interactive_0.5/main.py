@@ -4,7 +4,8 @@ Secondary interface:
 - generating main GUI;
 - generating report (in development);
 """
-
+import tkinter
+from tkinter import ttk
 from main_data_processing import *
 from tkinter import *
 import docx
@@ -27,6 +28,9 @@ something = main_window_destroy
 reload_x = 0
 secondary_window = None
 secondary_window_destroy = False
+
+selected_error = ''
+error_for_visualisation = ''
 
 
 def message_for_frames():
@@ -166,6 +170,8 @@ def open_file():
     global reload_x
     global secondary_window
     global secondary_window_destroy
+    global error_for_visualisation
+    error_for_visualisation = ''
 
     if main_window_destroy:
         pars_location(pars_zone_len_local)
@@ -456,7 +462,7 @@ def open_file():
             for hkls in absolute_error_checked:
                 indexes.append(peak_hkl.index(hkls))
 
-            # вычисляет заново абсолютнуую погрешность
+            # вычисляет заново абсолютную погрешность
             absolute_error_before_unification = {}
             from main_data_processing import data_position
             global diff
@@ -484,43 +490,89 @@ def open_file():
                 for items in absolute_error_before_unification.values():
                     absolute_error[peak_hkl[index]]['exp_data'].append(items[indexes.index(index)])
 
-            # обновляет рамки
+            # делает красными чекбаттоны, если превышается абсолютная погрешность
+            if error_for_visualisation == 'absolute error':
+                timer_trig = 0
+                for keys, values in absolute_error.items():
+                    if 'None information' not in values and values != [] and max(values['exp_data']) >= 0.02:
+                        absolute_error[peak_hkl[timer_trig]]['checkbutton_variable'] = False
+                        globals()['chckbtn%d' % timer_trig].configure(fg='red')
+                    elif 'None information' in values or values == []:
+                        absolute_error[peak_hkl[timer_trig]] = 'None information'
+                    else:
+                        absolute_error[peak_hkl[timer_trig]]['checkbutton_variable'] = True
+                        globals()['chckbtn%d' % timer_trig].configure(fg='black')
 
-            timer_trig = 0
-            for keys, values in absolute_error.items():
-                if 'None information' not in values and values != [] and max(values['exp_data']) > 0.02:
-                    absolute_error[peak_hkl[timer_trig]]['checkbutton_variable'] = False
-                    globals()['chckbtn%d' % timer_trig].configure(fg='red')
-                elif 'None information' in values or values == []:
-                    absolute_error[peak_hkl[timer_trig]] = 'None information'
+                    # если чекбаттон отжат, делает его черным
+                    if 'None information' not in values and values != [] and not values['metrology_var']:
+                        globals()['chckbtn%d' % timer_trig].configure(fg='black')
+                    timer_trig += 1
+
+                # если есть превышение по абсолютной погрешности, делает первый чекбаттон красным
+                first_index_red = False
+                for keys, values in absolute_error.items():
+                    if 'None information' not in values and values != []:
+                        if not values['checkbutton_variable'] and values['metrology_var']:
+                            first_index_red = True
+                            break
+                if first_index_red:
+                    globals()['chckbtn%d' % indexes[0]].configure(fg='red')
+
+            elif error_for_visualisation == 'positions deviation':
+                # обновление ско положения
+                timer_trig = 0
+                for keys, values in sko_result_pos.items():
+                    if 'None information' not in values and values != []:
+                        if float(values['sqroot']) >= 0.2:
+                            globals()['chckbtn%d' % timer_trig].configure(fg='red')
+                        else:
+                            globals()['chckbtn%d' % timer_trig].configure(fg='black')
+                    timer_trig += 1
+
+            elif error_for_visualisation == 'intensities deviation':
+                # обновление ско интенсивности
+                timer_trig = 0
+                for keys, values in sko_result_intens.items():
+                    if 'None information' not in values and values != []:
+                        if float(values['sko']) >= 2:
+                            globals()['chckbtn%d' % timer_trig].configure(fg='red')
+                        else:
+                            globals()['chckbtn%d' % timer_trig].configure(fg='black')
+                    timer_trig += 1
+            #
+            # Общий блок не работает!!! точнее, работает криво. Исправить!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! (снизу)
+            #
+
+            else:
+                timer_trig = 0
+                for keys, values in sko_result_intens.items():
+                    if 'None information' not in values and values != []:
+                        globals()['chckbtn%d' % timer_trig].configure(fg='black')
+                for keys, values in sko_result_intens.items():
+                    if 'None information' not in values and values != []:
+                        if values['sko'] >= 2 or sko_result_pos[keys]['sqroot'] >= 0.2:
+                            globals()['chckbtn%d' % timer_trig].configure(fg='red')
+
+                first_index_red = False
+                for keys, values in absolute_error.items():
+                    if 'None information' not in values and values != []:
+                        if max(values['exp_data']) >= 0.02:
+                            globals()['chckbtn%d' % timer_trig].configure(fg='red')
+                        if not values['checkbutton_variable'] and values['metrology_var']:
+                            first_index_red = True
+
+                if first_index_red:
+                    globals()['chckbtn%d' % indexes[0]].configure(fg='red')
                 else:
-                    absolute_error[peak_hkl[timer_trig]]['checkbutton_variable'] = True
-                    globals()['chckbtn%d' % timer_trig].configure(fg='black')
+                    globals()['chckbtn%d' % indexes[0]].configure(fg='black')
+
+                for keys, values in absolute_error.items():
+                    if 'None information' not in values and values != [] and not values['metrology_var']:
+                        globals()['chckbtn%d' % timer_trig].configure(fg='black')
                 timer_trig += 1
-            # ВОТ СЮДА ВКИНУТЬ ПРОВЕРКУ НА ПРОЖАТОСТЬ ЧЕКБАТТОНА, ИНАЧЕ ПРОЖАТЫЕ ОСТАЮТСЯ КРАСНЫМИ!!!
-            first_index_red = False
-            for keys, values in absolute_error.items():
-                if 'None information' not in values and values != []:
-                    if not values['checkbutton_variable'] and values['metrology_var']:
-                        first_index_red = True
-                        break
-            if first_index_red:
-                globals()['chckbtn%d' % indexes[0]].configure(fg='red')
-
-
 
             #
-            #
-            #
-
-
-            #
-            # Криво считывает минимальные значения (может и остальные, нужно проверить) + красные рамки не обновляются
-            #
-
-
-            #
-            #
+            # когда только 1 чекбаттон, зачем-то показывает hkl. нужно убрать, ептить
             #
 
         reload_absolute_error()
@@ -532,7 +584,6 @@ def open_file():
 
     timer = 0
     max_len_of_key = []
-    chkbttn_variables = []
 
     for key, value in sko_result_pos.items():
         max_len_of_key.append(len(key))
@@ -548,55 +599,59 @@ def open_file():
         if len(value) <= 15:
 
             if float(value['exp_data'][1]) >= 100:
-                if absolute_error[key]['checkbutton_variable'] and sko_result_pos[key][
-                            'checkbutton_variable'] and sko_result_intens[key]['checkbutton_variable']:
-                    globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
-                                          text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[timer] + '°',
-                                          bg='#dddddd',
-                                          variable=absolute_error[peak_hkl[timer]][
-                                              'checkbutton_variable_for_def'],
-                                          command=reload)
-                    globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
-                    Checkbutton.select(globals()['chckbtn%d' % timer])
-                else:
-                    globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
-                                          text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[timer] + '°',
-                                          fg='red', bg='#dddddd', command=reload,
-                                          variable=absolute_error[peak_hkl[timer]][
-                                              'checkbutton_variable_for_def'])
-                    globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
-                    Checkbutton.select(globals()['chckbtn%d' % timer])
+                globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
+                                                             text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[
+                                                                 timer] + '°',
+                                                             bg='#dddddd',
+                                                             variable=absolute_error[peak_hkl[timer]][
+                                                                 'checkbutton_variable_for_def'],
+                                                             command=reload)
+                globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
+                Checkbutton.select(globals()['chckbtn%d' % timer])
             else:
-                if absolute_error[key]['checkbutton_variable'] and sko_result_pos[key][
-                            'checkbutton_variable'] and sko_result_intens[key]['checkbutton_variable']:
-                    globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
-                                          text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[timer] + '°  ',
-                                          bg='#dddddd',
-                                          command=reload,
-                                          variable=absolute_error[peak_hkl[timer]][
-                                              'checkbutton_variable_for_def'])
-                    globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
-                    Checkbutton.select(globals()['chckbtn%d' % timer])
-                else:
-                    globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
-                                          text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[timer] + '°  ',
-                                          fg='red', bg='#dddddd', command=reload, variable=absolute_error
-                                          [peak_hkl[timer]]['checkbutton_variable_for_def'])
-                    globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
-                    Checkbutton.select(globals()['chckbtn%d' % timer])
+                globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
+                                                             text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[
+                                                                 timer] + '°  ',
+                                                             bg='#dddddd',
+                                                             command=reload,
+                                                             variable=absolute_error[peak_hkl[timer]][
+                                                                 'checkbutton_variable_for_def'])
+                globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
+                Checkbutton.select(globals()['chckbtn%d' % timer])
         else:
             if float(nist_peak_position[timer]) >= 100:
                 globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
-                                      text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[timer] + '°',
-                                      bg='grey70', state=DISABLED)
+                                                             text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[
+                                                                 timer] + '°',
+                                                             bg='grey70', state=DISABLED)
                 globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
             else:
                 globals()['chckbtn%d' % timer] = Checkbutton(frame_for_checkbutton,
-                                      text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[timer] + '°  ', bg='grey70',
-                                      state=DISABLED)
+                                                             text=hkl_for_frame[-1] + ' -   ' + nist_peak_position[
+                                                                 timer] + '°  ', bg='grey70',
+                                                             state=DISABLED)
                 globals()['chckbtn%d' % timer].grid(row=timer, sticky=W, pady=0)
 
         timer += 1
+
+    reload()
+
+    # выбор ошибки
+    global selected_error
+    selected_error = tkinter.StringVar()
+    error_combobox = ttk.Combobox(frame_for_checkbutton, textvariable=selected_error, width=18)
+    error_combobox['values'] = ('absolute error', 'positions deviation', 'intensities deviation', 'all')
+    error_combobox['state'] = 'readonly'
+    error_combobox.set('select deviation type')
+    error_combobox.grid(row=timer, sticky=W, pady=4)
+
+    def error_selected(event):
+        """ handle the error changed event """
+        global error_for_visualisation
+        error_for_visualisation = selected_error.get()
+        reload()
+
+    error_combobox.bind('<<ComboboxSelected>>', error_selected)
 
     class Info:
         """
@@ -616,9 +671,10 @@ def open_file():
 
             self.main_info_lbl = Label(self.information_frame, width=64, justify=LEFT, wraplength=435, anchor=NW,
                                        relief=RIDGE, text=' Путь к файлу:\n  - ' + str(directory_expand) +
-                                       '\n\n Стандарт образца:\n  - NIST ' + str(srm_name) +
-                                       '\n\n Количество снятых дифрактограмм:\n  - ' + str(number_of_diffractograms) +
-                                       '\n\n Версия формул:\n  - март 2022', pady=8)
+                                                          '\n\n Стандарт образца:\n  - NIST ' + str(srm_name) +
+                                                          '\n\n Количество снятых дифрактограмм:\n  - ' + str(
+                                                           number_of_diffractograms) +
+                                                          '\n\n Версия формул:\n  - март 2022', pady=8)
 
             self.main_info_lbl.pack(side=LEFT, anchor=NW, fill=Y)
             self.info_for_checkbuttons = Label(self.information_frame, width=20, bg='#dddddd')
@@ -667,22 +723,18 @@ def open_file():
     def make_report():
         """Function for 'make report' button. Making report and saving it into the 'word' file"""
 
-
-
         records_table_1 = []
 
-
-
-
-
         filename = askopenfilename()
-        #report = docx.Document(filename)
+        # report = docx.Document(filename)
         print(filename)
 
         document = Document()  # docs.Document()!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         par1 = document.add_paragraph('8.4 Определение метрологических характеристик').bold = True
-        par2 = document.add_paragraph('8.4.1 Определение пределов допускаемой абсолютной погрешности при измерении угловых положений дифракционных максимумов')
+        par2 = document.add_paragraph(
+            '8.4.1 Определение пределов допускаемой абсолютной погрешности при '
+            'измерении угловых положений дифракционных максимумов')
 
         def create_table(document, headers, rows, style='Table Grid'):
             cols_number = len(headers)
@@ -701,18 +753,11 @@ def open_file():
 
             return table
 
-
-
         for hkl in peak_hkl:
             for key, value in absolute_error.items():
                 from main_data_processing import data_position
 
-
-                #record_table_1[]
-
-
-
-
+                # record_table_1[]
 
         headers = ('№ п/п', 'Наименование параметра', 'Единицы измерения', 'Значение')
         records_table1 = (
@@ -732,11 +777,6 @@ def open_file():
         table2 = create_table(document, ('x', 'y', 'x * y'), rows)
 
         document.save(filename)
-
-
-
-
-
 
     # new interface buttons
     report_btn = Button(frame_for_down_buttons, text="Создать отчёт", width=20, command=make_report)
