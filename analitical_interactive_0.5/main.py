@@ -539,37 +539,58 @@ def open_file():
                         else:
                             globals()['chckbtn%d' % timer_trig].configure(fg='black')
                     timer_trig += 1
+
             #
             # Общий блок не работает!!! точнее, работает криво. Исправить!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! (снизу)
             #
 
             else:
                 timer_trig = 0
+
                 for keys, values in sko_result_intens.items():
                     if 'None information' not in values and values != []:
                         globals()['chckbtn%d' % timer_trig].configure(fg='black')
+                    timer_trig += 1
+
+                timer_trig = 0
                 for keys, values in sko_result_intens.items():
                     if 'None information' not in values and values != []:
-                        if values['sko'] >= 2 or sko_result_pos[keys]['sqroot'] >= 0.2:
+                        if values['sko'] >= 2 and values['metrology_var']:
                             globals()['chckbtn%d' % timer_trig].configure(fg='red')
+                    timer_trig += 1
+
+                timer_trig = 0
+                for keys, values in sko_result_pos.items():
+                    if 'None information' not in values and values != []:
+                        if values['sko'] >= 0.2 and  values['metrology_var']:
+                            globals()['chckbtn%d' % timer_trig].configure(fg='red')
+                    timer_trig += 1
+
+                #
+                # Вот тут сидит какая-то херня, которая делает красными последние индексы, когда это не нужно
+                # допили плиз версию "none"
+                #
 
                 first_index_red = False
+                timer_trig = 0
                 for keys, values in absolute_error.items():
                     if 'None information' not in values and values != []:
-                        if max(values['exp_data']) >= 0.02:
+                        if max(values['exp_data']) >= 0.02 and values['metrology_var']:
                             globals()['chckbtn%d' % timer_trig].configure(fg='red')
                         if not values['checkbutton_variable'] and values['metrology_var']:
                             first_index_red = True
+                    timer_trig += 1
+
+                timer_trig = 0
+                for keys, values in absolute_error.items():
+                    if 'None information' not in values and values != [] and not values['metrology_var']:
+                        globals()['chckbtn%d' % timer_trig].configure(fg='black')
+                timer_trig += 1
 
                 if first_index_red:
                     globals()['chckbtn%d' % indexes[0]].configure(fg='red')
                 else:
                     globals()['chckbtn%d' % indexes[0]].configure(fg='black')
-
-                for keys, values in absolute_error.items():
-                    if 'None information' not in values and values != [] and not values['metrology_var']:
-                        globals()['chckbtn%d' % timer_trig].configure(fg='black')
-                timer_trig += 1
 
             #
             # когда только 1 чекбаттон, зачем-то показывает hkl. нужно убрать, ептить
