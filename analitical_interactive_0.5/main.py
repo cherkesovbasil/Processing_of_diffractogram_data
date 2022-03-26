@@ -437,7 +437,7 @@ def open_file():
         updating the information in the graphical interface
         """
 
-        def reload_absolute_error():
+        def reload_errors():
             """вычисляет заново абсолютную погрешность, отталкиваясь от новых значени чекбаттонов"""
 
             # обновление значений булевой переменной по нажатию чекбаттонов
@@ -520,33 +520,26 @@ def open_file():
 
             elif error_for_visualisation == 'positions deviation':
                 # обновление ско положения
+
+                timer_trig = 0
+                for keys, values in sko_result_intens.items():
+                    if 'None information' not in values and values != []:
+                        globals()['chckbtn%d' % timer_trig].configure(fg='black')
+                    timer_trig += 1
+
                 timer_trig = 0
                 for keys, values in sko_result_pos.items():
                     if 'None information' not in values and values != []:
                         if float(values['sqroot']) >= 0.2:
                             globals()['chckbtn%d' % timer_trig].configure(fg='red')
-                        else:
+                        if not values['metrology_var']:
                             globals()['chckbtn%d' % timer_trig].configure(fg='black')
                     timer_trig += 1
 
             elif error_for_visualisation == 'intensities deviation':
                 # обновление ско интенсивности
+
                 timer_trig = 0
-                for keys, values in sko_result_intens.items():
-                    if 'None information' not in values and values != []:
-                        if float(values['sko']) >= 2:
-                            globals()['chckbtn%d' % timer_trig].configure(fg='red')
-                        else:
-                            globals()['chckbtn%d' % timer_trig].configure(fg='black')
-                    timer_trig += 1
-
-            #
-            # Общий блок не работает!!! точнее, работает криво. Исправить!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! (снизу)
-            #
-
-            else:
-                timer_trig = 0
-
                 for keys, values in sko_result_intens.items():
                     if 'None information' not in values and values != []:
                         globals()['chckbtn%d' % timer_trig].configure(fg='black')
@@ -555,22 +548,23 @@ def open_file():
                 timer_trig = 0
                 for keys, values in sko_result_intens.items():
                     if 'None information' not in values and values != []:
-                        if values['sko'] >= 2 and values['metrology_var']:
+                        if float(values['sko']) >= 2:
                             globals()['chckbtn%d' % timer_trig].configure(fg='red')
+                        if not values['metrology_var']:
+                            globals()['chckbtn%d' % timer_trig].configure(fg='black')
                     timer_trig += 1
 
+            elif error_for_visualisation == 'all':
+                # обновление всех ошибок
+
+                # делает все чекбаттоны черными
                 timer_trig = 0
-                for keys, values in sko_result_pos.items():
+                for keys, values in sko_result_intens.items():
                     if 'None information' not in values and values != []:
-                        if values['sko'] >= 0.2 and  values['metrology_var']:
-                            globals()['chckbtn%d' % timer_trig].configure(fg='red')
+                        globals()['chckbtn%d' % timer_trig].configure(fg='black')
                     timer_trig += 1
 
-                #
-                # Вот тут сидит какая-то херня, которая делает красными последние индексы, когда это не нужно
-                # допили плиз версию "none"
-                #
-
+                # обновяет абсолютную погрешность
                 first_index_red = False
                 timer_trig = 0
                 for keys, values in absolute_error.items():
@@ -578,25 +572,48 @@ def open_file():
                         if max(values['exp_data']) >= 0.02 and values['metrology_var']:
                             globals()['chckbtn%d' % timer_trig].configure(fg='red')
                         if not values['checkbutton_variable'] and values['metrology_var']:
-                            first_index_red = True
+                            if max(values['exp_data']) >= 0.02:
+                                first_index_red = True
                     timer_trig += 1
 
+                # из-за смещений приходится все прокрашивать в черный снова
                 timer_trig = 0
                 for keys, values in absolute_error.items():
                     if 'None information' not in values and values != [] and not values['metrology_var']:
                         globals()['chckbtn%d' % timer_trig].configure(fg='black')
                 timer_trig += 1
 
+                # делает первое значение красным, если есть активное отклонение
                 if first_index_red:
                     globals()['chckbtn%d' % indexes[0]].configure(fg='red')
                 else:
                     globals()['chckbtn%d' % indexes[0]].configure(fg='black')
 
-            #
-            # когда только 1 чекбаттон, зачем-то показывает hkl. нужно убрать, ептить
-            #
+                #  обновляет ско интенсивности
+                timer_trig = 0
+                for keys, values in sko_result_intens.items():
+                    if 'None information' not in values and values != []:
+                        if values['sko'] >= 2 and values['metrology_var']:
+                            globals()['chckbtn%d' % timer_trig].configure(fg='red')
+                    timer_trig += 1
 
-        reload_absolute_error()
+                # обновляет ско положения
+                timer_trig = 0
+                for keys, values in sko_result_pos.items():
+                    if 'None information' not in values and values != []:
+                        if values['sqroot'] >= 0.2 and values['metrology_var']:
+                            globals()['chckbtn%d' % timer_trig].configure(fg='red')
+                    timer_trig += 1
+
+            else:
+                # в случае выбора "none"
+                timer_trig = 0
+                for keys, values in sko_result_intens.items():
+                    if 'None information' not in values and values != []:
+                        globals()['chckbtn%d' % timer_trig].configure(fg='black')
+                    timer_trig += 1
+
+        reload_errors()
         message_for_frames()
         reload_x.labels_config()
 
@@ -657,14 +674,20 @@ def open_file():
 
     reload()
 
-    # выбор ошибки
+    # меню выбора ошибки
     global selected_error
     selected_error = tkinter.StringVar()
     error_combobox = ttk.Combobox(frame_for_checkbutton, textvariable=selected_error, width=18)
-    error_combobox['values'] = ('absolute error', 'positions deviation', 'intensities deviation', 'all')
+    error_combobox['values'] = ('absolute error', 'positions deviation', 'intensities deviation', 'all', 'none')
     error_combobox['state'] = 'readonly'
     error_combobox.set('select deviation type')
     error_combobox.grid(row=timer, sticky=W, pady=4)
+
+
+    #
+    # СДЕЛАТЬ ТАК, ЧТОБЫ ПРИ ПЕРВОМ ВКЛЮЧЕНИИ ВЫДАВАЛО "ALL"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #
+
 
     def error_selected(event):
         """ handle the error changed event """
