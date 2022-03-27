@@ -691,7 +691,7 @@ def open_file():
     error_combobox.set('select deviation type')
     error_combobox.grid(row=timer, sticky=W, pady=4)
 
-    def error_selected(self):
+    def error_selected(event):
         """ handle the error changed event """
         global error_for_visualisation
         error_for_visualisation = selected_error.get()
@@ -719,7 +719,7 @@ def open_file():
                                        relief=RIDGE, text=' Путь к файлу:\n  ' + str(directory_expand) +
                                                           '\n\n Стандарт образца:\n  NIST ' + str(srm_name) +
                                                           '\n\n Количество снятых дифрактограмм:\n  ' + str(
-                    number_of_diffractograms) +
+                                                           number_of_diffractograms) +
                                                           '\n\n Версия формул:\n  апрель 2022', pady=8)
 
             self.main_info_lbl.pack(side=LEFT, anchor=NW, fill=Y)
@@ -802,15 +802,15 @@ def open_file():
             return table
 
         list_of_indexes = []
-        for key, value in absolute_error.items():
+        for keys, values in absolute_error.items():
             print('\nitteration')
-            print(key)
-            print(value)
+            print(keys)
+            print(values)
             if 'None information' not in value and value != [] and value['metrology_var']:
-                print(value)
+                print(values)
                 print('\n')
                 # первый столбец с индексами:
-                list_of_indexes.append(peak_hkl[indexes[0]] + ' - ' + key)
+                list_of_indexes.append(peak_hkl[indexes[0]] + ' - ' + keys)
 
                 #
                 # Все остальные столбцы заполнить!!!!!!!!!!
