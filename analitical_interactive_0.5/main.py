@@ -32,6 +32,7 @@ secondary_window_destroy = False
 selected_error = ''
 error_for_visualisation = ''
 first_init = True
+indexes = []
 
 
 def message_for_frames():
@@ -434,7 +435,7 @@ def open_file():
 
     def reload():
         """
-        initiates the process of recalculation of the values and
+        Initiates the process of recalculation of the values and
         updating the information in the graphical interface
         """
         global first_init
@@ -444,9 +445,9 @@ def open_file():
             first_init = False
 
         def reload_errors():
-            """вычисляет заново абсолютную погрешность, отталкиваясь от новых значени чекбаттонов"""
+            """Recalculates the absolute error, with new values of checkbuttons"""
 
-            # обновление значений булевой переменной по нажатию чекбаттонов
+            # update boolean variable (state) values by clicking checkbuttons
             for keys, values in absolute_error.items():
                 if values != 'None information':
                     # receives information one by one about all states of the buttons
@@ -457,25 +458,26 @@ def open_file():
                     sko_result_intens[keys]['metrology_var'] = absolute_error[keys][
                         'checkbutton_variable_for_def'].get()
 
-            # прогонка массива для нахождения всех активных ключей
+            # finding all active keys
             absolute_error_checked = []
             for keys, values in absolute_error.items():
                 if values != 'None information' and values is not None and values['metrology_var'] == 1:
                     absolute_error_checked.append(keys)
 
-            # преобразование активных ключей в индексы для обращения к изначальным данным
+            # converting active keys into indexes to refer to the original data
+            global indexes
             indexes = []
             for hkls in absolute_error_checked:
                 indexes.append(peak_hkl.index(hkls))
 
-            # вычисляет заново абсолютную погрешность
+            # recalculates absolute error
             absolute_error_before_unification = {}
             from main_data_processing import data_position
             global diff
             for name, peak_list in data_position.items():
                 diff = []
 
-                # сбрасывает индексы у первого элемента, от которого идет отсчёт
+                # resets the indices of the first element from which absolute error counts
 
                 for index in indexes:
                     if index == indexes[0]:
@@ -490,13 +492,13 @@ def open_file():
                     diff.append(difference)
                 absolute_error_before_unification[name] = diff
 
-            # обновляет данные о погрешности
+            # updates absolute error data
             for index in indexes:
                 absolute_error[peak_hkl[index]]['exp_data'] = []
                 for items in absolute_error_before_unification.values():
                     absolute_error[peak_hkl[index]]['exp_data'].append(items[indexes.index(index)])
 
-            # делает красными чекбаттоны, если превышается абсолютная погрешность
+            # makes checkbuttons red if the absolute error is exceeded
             if error_for_visualisation == 'absolute error':
                 timer_trig = 0
                 for keys, values in absolute_error.items():
@@ -509,12 +511,12 @@ def open_file():
                         absolute_error[peak_hkl[timer_trig]]['checkbutton_variable'] = True
                         globals()['chckbtn%d' % timer_trig].configure(fg='black')
 
-                    # если чекбаттон отжат, делает его черным
+                    # if the checbutton is released, makes it black
                     if 'None information' not in values and values != [] and not values['metrology_var']:
                         globals()['chckbtn%d' % timer_trig].configure(fg='black')
                     timer_trig += 1
 
-                # если есть превышение по абсолютной погрешности, делает первый чекбаттон красным
+                # if there is an excess in absolute error, makes the first checkbutton red
                 first_index_red = False
                 for keys, values in absolute_error.items():
                     if 'None information' not in values and values != []:
@@ -525,7 +527,7 @@ def open_file():
                     globals()['chckbtn%d' % indexes[0]].configure(fg='red')
 
             elif error_for_visualisation == 'positions deviation':
-                # обновление ско положения
+                # updates standard deviation of position
 
                 timer_trig = 0
                 for keys, values in sko_result_intens.items():
@@ -543,7 +545,7 @@ def open_file():
                     timer_trig += 1
 
             elif error_for_visualisation == 'intensities deviation':
-                # обновление ско интенсивности
+                # updates standard deviation of intensities
 
                 timer_trig = 0
                 for keys, values in sko_result_intens.items():
@@ -561,16 +563,16 @@ def open_file():
                     timer_trig += 1
 
             elif error_for_visualisation == 'all':
-                # обновление всех ошибок
+                # updates all errors
 
-                # делает все чекбаттоны черными
+                # makes all checkbuttons red
                 timer_trig = 0
                 for keys, values in sko_result_intens.items():
                     if 'None information' not in values and values != []:
                         globals()['chckbtn%d' % timer_trig].configure(fg='black')
                     timer_trig += 1
 
-                # обновяет абсолютную погрешность
+                # updates absolute error
                 first_index_red = False
                 timer_trig = 0
                 for keys, values in absolute_error.items():
@@ -582,20 +584,20 @@ def open_file():
                                 first_index_red = True
                     timer_trig += 1
 
-                # из-за смещений приходится все прокрашивать в черный снова
+                # because of the shifts, have to paint everything black again
                 timer_trig = 0
                 for keys, values in absolute_error.items():
                     if 'None information' not in values and values != [] and not values['metrology_var']:
                         globals()['chckbtn%d' % timer_trig].configure(fg='black')
                 timer_trig += 1
 
-                # делает первое значение красным, если есть активное отклонение
+                # makes the first value red if there is an active deviation
                 if first_index_red:
                     globals()['chckbtn%d' % indexes[0]].configure(fg='red')
                 else:
                     globals()['chckbtn%d' % indexes[0]].configure(fg='black')
 
-                #  обновляет ско интенсивности
+                #  updates standard deviation of intensities
                 timer_trig = 0
                 for keys, values in sko_result_intens.items():
                     if 'None information' not in values and values != []:
@@ -603,7 +605,7 @@ def open_file():
                             globals()['chckbtn%d' % timer_trig].configure(fg='red')
                     timer_trig += 1
 
-                # обновляет ско положения
+                # updates standard deviation of positions
                 timer_trig = 0
                 for keys, values in sko_result_pos.items():
                     if 'None information' not in values and values != []:
@@ -612,7 +614,7 @@ def open_file():
                     timer_trig += 1
 
             else:
-                # в случае выбора "none"
+                # in case of chosen "none"
                 timer_trig = 0
                 for keys, values in sko_result_intens.items():
                     if 'None information' not in values and values != []:
@@ -689,12 +691,7 @@ def open_file():
     error_combobox.set('select deviation type')
     error_combobox.grid(row=timer, sticky=W, pady=4)
 
-    #
-    # СДЕЛАТЬ ТАК, ЧТОБЫ ПРИ ПЕРВОМ ВКЛЮЧЕНИИ ВЫДАВАЛО "ALL"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #
-
-
-    def error_selected(event):
+    def error_selected(self):
         """ handle the error changed event """
         global error_for_visualisation
         error_for_visualisation = selected_error.get()
@@ -722,7 +719,7 @@ def open_file():
                                        relief=RIDGE, text=' Путь к файлу:\n  ' + str(directory_expand) +
                                                           '\n\n Стандарт образца:\n  NIST ' + str(srm_name) +
                                                           '\n\n Количество снятых дифрактограмм:\n  ' + str(
-                                                           number_of_diffractograms) +
+                    number_of_diffractograms) +
                                                           '\n\n Версия формул:\n  апрель 2022', pady=8)
 
             self.main_info_lbl.pack(side=LEFT, anchor=NW, fill=Y)
@@ -761,12 +758,15 @@ def open_file():
                 self.information_frame.pack_forget()
 
     info_reload = Info()
+    print(absolute_error)
 
     def chose_another_file():
         """Performs the function of processing a new file by pressing the 'select new file' button"""
 
+        global first_init
         global secondary_window_destroy
         secondary_window_destroy = True
+        first_init = True
         open_file()
 
     def make_report():
@@ -801,13 +801,28 @@ def open_file():
 
             return table
 
-        for hkl in peak_hkl:
-            for key, value in absolute_error.items():
-                from main_data_processing import data_position
+        list_of_indexes = []
+        for key, value in absolute_error.items():
+            print('\nitteration')
+            print(key)
+            print(value)
+            if 'None information' not in value and value != [] and value['metrology_var']:
+                print(value)
+                print('\n')
+                # первый столбец с индексами:
+                list_of_indexes.append(peak_hkl[indexes[0]] + ' - ' + key)
 
-                # record_table_1[]
+                #
+                # Все остальные столбцы заполнить!!!!!!!!!!
+                # Создать нормальную таблицу
+                #
 
-        headers = ('№ п/п', 'Наименование параметра', 'Единицы измерения', 'Значение')
+            from main_data_processing import data_position
+
+            # record_table_1[]
+
+        print(list_of_indexes)
+        headers = ('position 0 - position 1', '', 'Единицы измерения', 'Значение')
         records_table1 = (
             (0, 'Nan', 'Nan', 0),
             (1, 'Первая величина', '-/-', 0),
