@@ -31,6 +31,7 @@ secondary_window_destroy = False
 
 selected_error = ''
 error_for_visualisation = ''
+first_init = True
 
 
 def message_for_frames():
@@ -436,6 +437,11 @@ def open_file():
         initiates the process of recalculation of the values and
         updating the information in the graphical interface
         """
+        global first_init
+        global error_for_visualisation
+        if first_init:
+            error_for_visualisation = 'all'
+            first_init = False
 
         def reload_errors():
             """вычисляет заново абсолютную погрешность, отталкиваясь от новых значени чекбаттонов"""
@@ -683,7 +689,6 @@ def open_file():
     error_combobox.set('select deviation type')
     error_combobox.grid(row=timer, sticky=W, pady=4)
 
-
     #
     # СДЕЛАТЬ ТАК, ЧТОБЫ ПРИ ПЕРВОМ ВКЛЮЧЕНИИ ВЫДАВАЛО "ALL"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     #
@@ -714,11 +719,11 @@ def open_file():
             self.information_frame = LabelFrame(secondary_window)
 
             self.main_info_lbl = Label(self.information_frame, width=64, justify=LEFT, wraplength=435, anchor=NW,
-                                       relief=RIDGE, text=' Путь к файлу:\n  - ' + str(directory_expand) +
-                                                          '\n\n Стандарт образца:\n  - NIST ' + str(srm_name) +
-                                                          '\n\n Количество снятых дифрактограмм:\n  - ' + str(
+                                       relief=RIDGE, text=' Путь к файлу:\n  ' + str(directory_expand) +
+                                                          '\n\n Стандарт образца:\n  NIST ' + str(srm_name) +
+                                                          '\n\n Количество снятых дифрактограмм:\n  ' + str(
                                                            number_of_diffractograms) +
-                                                          '\n\n Версия формул:\n  - март 2022', pady=8)
+                                                          '\n\n Версия формул:\n  апрель 2022', pady=8)
 
             self.main_info_lbl.pack(side=LEFT, anchor=NW, fill=Y)
             self.info_for_checkbuttons = Label(self.information_frame, width=20, bg='#dddddd')
@@ -771,7 +776,6 @@ def open_file():
 
         filename = askopenfilename()
         # report = docx.Document(filename)
-        print(filename)
 
         document = Document()  # docs.Document()!!!!!!!!!!!!!!!!!!!!!!!!!!
 

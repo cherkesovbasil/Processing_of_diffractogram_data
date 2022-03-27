@@ -36,6 +36,7 @@ def month_changed(event):
         message=f'You selected {selected_month.get()}!'
     )
 
+
 month_cb.bind('<<ComboboxSelected>>', month_changed)
 
 root.mainloop()
