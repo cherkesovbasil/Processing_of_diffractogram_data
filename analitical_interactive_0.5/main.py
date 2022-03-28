@@ -33,6 +33,7 @@ selected_error = ''
 error_for_visualisation = ''
 first_init = True
 indexes = []
+first_index_red = False
 
 
 def message_for_frames():
@@ -511,12 +512,13 @@ def open_file():
                         absolute_error[peak_hkl[timer_trig]]['checkbutton_variable'] = True
                         globals()['chckbtn%d' % timer_trig].configure(fg='black')
 
-                    # if the checbutton is released, makes it black
+                    # if the checkbutton is released, makes it black
                     if 'None information' not in values and values != [] and not values['metrology_var']:
                         globals()['chckbtn%d' % timer_trig].configure(fg='black')
                     timer_trig += 1
 
                 # if there is an excess in absolute error, makes the first checkbutton red
+                global first_index_red
                 first_index_red = False
                 for keys, values in absolute_error.items():
                     if 'None information' not in values and values != []:
@@ -802,35 +804,119 @@ def open_file():
             return table
 
         list_of_indexes = []
+        standard_deviation = []
+        calculated_deviations = []
+        peak_positions_for_abs_error = []
+        standard_difference = []
+        peak_positions_for_abs_error_itter = []
+        from main_data_processing import number_of_diffractograms
+        from main_data_processing import data_position
+
+        # генерирует n- списков пиков по m- количеству дифрактограмм
+        for x in range(len(indexes)):
+            standard_deviation_itter = []
+            for b in range(number_of_diffractograms):
+                standard_deviation_itter.append(data_position['spectrum_' + str(b + 1) + '_position'][indexes[x]])
+            standard_deviation.append(standard_deviation_itter)
+
+        for x in range(number_of_diffractograms):
+            calculated_deviations.append([])
+
         for keys, values in absolute_error.items():
-            print('\nitteration')
-            print(keys)
-            print(values)
-            if 'None information' not in value and value != [] and value['metrology_var']:
-                print(values)
-                print('\n')
-                # первый столбец с индексами:
-                list_of_indexes.append(peak_hkl[indexes[0]] + ' - ' + keys)
+            if 'None information' not in values and values != []:
+                if peak_hkl.index(keys) > indexes[0] and values['metrology_var']:
+                    # первый столбец с индексами:
+                    list_of_indexes.append(keys + ' - ' + peak_hkl[indexes[0]])
 
-                #
-                # Все остальные столбцы заполнить!!!!!!!!!!
-                # Создать нормальную таблицу
-                #
+                    # второй столбец с эталонными разностями
+                    difference = round(float(nist_peak_position[peak_hkl.index(keys)]) -
+                                       float(nist_peak_position[indexes[0]]), 3)
+                    if difference != 0.0:
+                        standard_difference.append(difference)
 
-            from main_data_processing import data_position
+                    # столбцы с расчетными разностями
+                    peak_positions_for_abs_error = []
+                    if difference > 0:
+                        for x in range(number_of_diffractograms):
+                            calculated_deviations[x].append(round((values['exp_data'][x] - absolute_error[peak_hkl[indexes[0]]]['exp_data'][x]), 4))
 
-            # record_table_1[]
+                            peak_positions_for_abs_error_itter = []
+                            # сортирует положения пиков, создавая массивы по количеству дифрактограмм
+                            for i in range(len(indexes)):
+                                peak_positions_for_abs_error_itter.append(standard_deviation[i][x])
+                            peak_positions_for_abs_error.append(peak_positions_for_abs_error_itter)
 
-        print(list_of_indexes)
-        headers = ('position 0 - position 1', '', 'Единицы измерения', 'Значение')
-        records_table1 = (
-            (0, 'Nan', 'Nan', 0),
-            (1, 'Первая величина', '-/-', 0),
-            (2, 'Вторая величина', '-/-', 'Базальт'),
-            (3, 'Третья величина', 'м^2/ч', 0)
-        )
+        peak_difference_for_abs_error = []
 
-        table1 = create_table(document, headers, records_table1)
+        for iterations in range(number_of_diffractograms):
+            peak_difference_for_abs_error.append([])
+
+        # создает массив с разностью снятых значений положений пиков
+        for iterations in range(len(indexes)):
+            for iteration in range(number_of_diffractograms):
+                result = round(float(peak_positions_for_abs_error[iteration][iterations]) - float(peak_positions_for_abs_error[iteration][0]), 4)
+                if result != 0.0:
+                    peak_difference_for_abs_error[iteration].append(result)
+
+        #хрен его знает, проверить!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        for iterations in range(len(indexes)-1):
+            records_by_rows = [list_of_indexes[iterations], standard_difference[iterations]]
+            for i in range(number_of_diffractograms):
+                records_by_rows.append(peak_difference_for_abs_error[i][iterations])
+                records_by_rows.append(calculated_deviations[i][iterations])
+            records_table_1.append(records_by_rows)
+
+        # собирает все данные в один массив для создания таблицы
+        records_table_01 = []
+        for values in records_table_1:
+            counter = 2
+            records_table_01 = []
+            for counts in range((len(values)-2)//2):
+                records_table_01.append([values[0], values[1], values[counter], values[counter + 1]])
+                counter += 2
+
+        print(records_table_01)
+
+        #
+        #
+        #
+        # ВОТ ТУТ МАССИВ НЕ ПРАВИЛЬНО ПРЕОБРАЗУЕТСЯ. НУЖНО ПЕРЕВЕРНУТЬ, ДАБЫ ВСЁ БЫЛО ОК. СЯП
+        #
+        #
+        #
+
+
+
+        for i in range(number_of_diffractograms):
+            records_table_01_for_output = []
+            for items in records_table_01:
+                if items != float:
+                    records_table_01_for_output.append(items[i])
+                    print(records_table_01_for_output)
+
+            headers = ['Разница между максимумами соответствующих пиков (h1k1l1-h2k2l2)',
+                       'Эталонное значение разности, °',
+                       'Вычисленное значение разности для измеренной дифрактограммы, °',
+                       'Отклонение показаний дифрактометра']
+
+            table1 = create_table(document, headers, records_table_01_for_output)
+            document.save(filename)
+
+
+                # from main_data_processing import data_position
+                # record_table_1[]
+
+                #print(list_of_indexes)
+        '''
+        #headers = ('position 0 - position 1', '', 'Единицы измерения', 'Значение', '', '', '')
+        records_table1 = [
+            [0, 'Nan', 'Nan', 0],
+            [1, 'Первая величина', '-/-', 0],
+            [2, 'Вторая величина', '-/-', 'Базальт'],
+            [3, 'Третья величина', 'м^2/ч', 0]
+        ]
+
+        table1 = create_table(document, headers, records_table_1)
 
         document.add_paragraph()
 
@@ -840,7 +926,7 @@ def open_file():
         table2 = create_table(document, ('x', 'y', 'x * y'), rows)
 
         document.save(filename)
-
+        '''
     # new interface buttons
     report_btn = Button(frame_for_down_buttons, text="Создать отчёт", width=20, command=make_report)
     another_file_btn = Button(frame_for_down_buttons, text="Выбрать другой файл", width=20, command=chose_another_file)
