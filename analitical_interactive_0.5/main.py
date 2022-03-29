@@ -594,10 +594,11 @@ def open_file():
                 timer_trig += 1
 
                 # makes the first value red if there is an active deviation
-                if first_index_red:
-                    globals()['chckbtn%d' % indexes[0]].configure(fg='red')
-                else:
-                    globals()['chckbtn%d' % indexes[0]].configure(fg='black')
+                if indexes:
+                    if first_index_red:
+                        globals()['chckbtn%d' % indexes[0]].configure(fg='red')
+                    else:
+                        globals()['chckbtn%d' % indexes[0]].configure(fg='black')
 
                 #  updates standard deviation of intensities
                 timer_trig = 0
@@ -808,7 +809,6 @@ def open_file():
         calculated_deviations = []
         peak_positions_for_abs_error = []
         standard_difference = []
-        peak_positions_for_abs_error_itter = []
         from main_data_processing import number_of_diffractograms
         from main_data_processing import data_position
 
