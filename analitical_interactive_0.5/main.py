@@ -866,11 +866,12 @@ def open_file():
                 records_by_rows.append(calculated_deviations[i][iterations])
             records_table_1.append(records_by_rows)
 
+        print(records_table_1)
+
         # собирает все данные в один массив для создания таблицы
         records_table_01 = []
         for values in records_table_1:
             counter = 2
-            records_table_01 = []
             for counts in range((len(values)-2)//2):
                 records_table_01.append([values[0], values[1], values[counter], values[counter + 1]])
                 counter += 2
@@ -880,7 +881,7 @@ def open_file():
         #
         #
         #
-        # ВОТ ТУТ МАССИВ НЕ ПРАВИЛЬНО ПРЕОБРАЗУЕТСЯ. НУЖНО ПЕРЕВЕРНУТЬ, ДАБЫ ВСЁ БЫЛО ОК. СЯП
+        # ВОТ ТУТ МАССИВ НЕ ПРАВИЛЬНО ПРЕОБРАЗУЕТСЯ. НУЖНО ПЕРЕВЕРНУТЬ, ДАБЫ ВСЁ БЫЛО ОК
         #
         #
         #
@@ -893,7 +894,7 @@ def open_file():
                 if items != float:
                     records_table_01_for_output.append(items[i])
                     print(records_table_01_for_output)
-
+        
             headers = ['Разница между максимумами соответствующих пиков (h1k1l1-h2k2l2)',
                        'Эталонное значение разности, °',
                        'Вычисленное значение разности для измеренной дифрактограммы, °',
