@@ -4,36 +4,37 @@ Secondary interface:
 - generating main GUI;
 - generating report (in development);
 """
+
 import tkinter
+import os
 from tkinter import ttk
 from main_data_processing import *
 from tkinter import *
 from docx.enum.text import WD_BREAK
-import os
 
 sko_result_intens = {}
 sko_result_pos = {}
+differences = {}
 
 pars_zone_numbers_local = 20
 pars_zone_len_local = 25
+reload_x = 0
 
 sko_pos = []
 sko_int = []
 abs_pos = []
-
-differences = {}
+indexes = []
 diff = []
 
-something = main_window_destroy
-reload_x = 0
 secondary_window = None
 secondary_window_destroy = False
+first_init = True
+first_index_red = False
 
 selected_error = ''
 error_for_visualisation = ''
-first_init = True
-indexes = []
-first_index_red = False
+
+something = main_window_destroy
 
 
 def message_for_frames():
@@ -685,7 +686,7 @@ def open_file():
 
     reload()
 
-    # меню выбора ошибки
+    # error selection menu
     global selected_error
     selected_error = tkinter.StringVar()
     error_combobox = ttk.Combobox(frame_for_checkbutton, textvariable=selected_error, width=18)
@@ -698,6 +699,7 @@ def open_file():
         """ handle the error changed event """
         global error_for_visualisation
         error_for_visualisation = selected_error.get()
+        print(event)
         reload()
 
     error_combobox.bind('<<ComboboxSelected>>', error_selected)
@@ -782,14 +784,13 @@ def open_file():
         file = [('Word file', '*.docx')]
         defaultext = '*.docx'
         filename = asksaveasfile(filetypes=file, defaultextension=defaultext, initialfile='Метрология_дифрактометра_№_')
-        # report = docx.Document(filename)
 
-        document = docx.Document()  # docs.Document()!!!!!!!!!!!!!!!!!!!!!!!!!!
+        document = docx.Document()
 
-        par1 = document.add_heading('    8.4 Определение метрологических характеристик')
-        par2 = document.add_paragraph('    Количество измеренных дифрактограмм: ' + str(number_of_diffractograms))
-        par3 = document.add_heading('    8.4.1 Определение пределов допускаемой абсолютной погрешности при '
-                                    'измерении угловых положений дифракционных максимумов')
+        document.add_heading('    8.4 Определение метрологических характеристик')
+        document.add_paragraph('    Количество измеренных дифрактограмм: ' + str(number_of_diffractograms))
+        document.add_heading('    8.4.1 Определение пределов допускаемой абсолютной погрешности при '
+                             'измерении угловых положений дифракционных максимумов')
 
         def create_table(tables, header, rows, style='Table Grid'):
             cols_number = len(header)
@@ -816,7 +817,7 @@ def open_file():
 
         from main_data_processing import data_position
 
-        # генерирует n- списков пиков по m- количеству дифрактограмм
+        # generates n- lists of peaks based on m- number of diffractograms
         for x in range(len(indexes)):
             standard_deviation_itter = []
             for b in range(number_of_diffractograms):
@@ -829,16 +830,16 @@ def open_file():
         for keys, values in absolute_error.items():
             if 'None information' not in values and values != []:
                 if peak_hkl.index(keys) > indexes[0] and values['metrology_var']:
-                    # первый столбец с индексами:
+                    # first column with indexes:
                     list_of_indexes.append(keys + ' - ' + peak_hkl[indexes[0]])
 
-                    # второй столбец с эталонными разностями
+                    # the second column with the reference differences
                     difference = round(float(nist_peak_position[peak_hkl.index(keys)]) -
                                        float(nist_peak_position[indexes[0]]), 3)
                     if difference != 0.0:
                         standard_difference.append(difference)
 
-                    # столбцы с расчетными разностями
+                    # columns with calculated differences
                     peak_positions_for_abs_error = []
                     if difference > 0:
                         for x in range(number_of_diffractograms):
@@ -846,7 +847,7 @@ def open_file():
                                 round((values['exp_data'][x] - absolute_error[peak_hkl[indexes[0]]]['exp_data'][x]), 4))
 
                             peak_positions_for_abs_error_itter = []
-                            # сортирует положения пиков, создавая массивы по количеству дифрактограмм
+                            # sorts the positions of peaks, creating arrays by the number of diffractograms
                             for i in range(len(indexes)):
                                 peak_positions_for_abs_error_itter.append(standard_deviation[i][x])
                             peak_positions_for_abs_error.append(peak_positions_for_abs_error_itter)
@@ -856,7 +857,7 @@ def open_file():
         for iterations in range(number_of_diffractograms):
             peak_difference_for_abs_error.append([])
 
-        # создает массив с разностью снятых значений положений пиков
+        # creates an array with the difference of the captured values of the peak positions
         for iterations in range(len(indexes)):
             for iteration in range(number_of_diffractograms):
                 result = round(float(peak_positions_for_abs_error[iteration][iterations]) - float(
@@ -864,7 +865,7 @@ def open_file():
                 if result != 0.0:
                     peak_difference_for_abs_error[iteration].append(result)
 
-        # хрен его знает, чё это, проверить!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # intermediate conversion of the data set
         for iterations in range(len(indexes) - 1):
             records_by_rows = [list_of_indexes[iterations], standard_difference[iterations]]
             for i in range(number_of_diffractograms):
@@ -872,7 +873,7 @@ def open_file():
                 records_by_rows.append(calculated_deviations[i][iterations])
             records_table_1.append(records_by_rows)
 
-        # собирает все данные в один массив для создания таблицы
+        # collects all data into one array to create a table
         records_table_01 = []
         for values in records_table_1:
             counter = 2
@@ -880,7 +881,7 @@ def open_file():
                 records_table_01.append([values[0], values[1], values[counter], values[counter + 1]])
                 counter += 2
 
-        # преобразует массив данных к выводному виду
+        # converts an array of data to a view for output to the GUI
         header_timer = 0
         for i in range(number_of_diffractograms):
             header_timer += 1
@@ -890,30 +891,28 @@ def open_file():
                 records_table_01_for_output.append(records_table_01[x * number_of_diffractograms + header_timer - 1])
                 table_timer += 1
 
-            # создает таблицы и хэдеры для таблиц
+            # create tables and headers for tables for absolute error
             par4 = document.add_paragraph('\n')
-            run = par4.add_run('    Таблица ' + str(header_timer) + '. Данные дифрактограммы №' + str(header_timer))
+            par4.add_run('    Таблица ' + str(header_timer) + '. Данные дифрактограммы №' + str(header_timer))
 
             headers = ['Разница между максимумами соответствующих пиков',
                        'Эталонное значение разности',
                        'Вычисленное значение разности для измеренной дифрактограммы',
                        'Отклонение показаний дифрактометра']
 
-            table1 = create_table(document, headers, records_table_01_for_output)
+            create_table(document, headers, records_table_01_for_output)
 
         par5 = document.add_paragraph()
-        run = par5.add_run(
-            '\n    Абсолютная погрешность дифрактометра при измерении угловых положений дифракционных '
-            'максимумов составляет ' + str(round(abs_pos[2][1], 5)) + '°').font.bold = True
+        par5.add_run('\n    Абсолютная погрешность дифрактометра при измерении угловых положений дифракционных '
+                     'максимумов составляет ' + str(round(abs_pos[2][1], 5)) + '°').font.bold = True
         p = document.add_paragraph()
         p.add_run().add_break(WD_BREAK.PAGE)
-        par6 = document.add_heading(
-            '    8.4.2 Определение среднеквадратичного отклонения (СКО) случайной составляющей погрешности при '
-            'измерении угловых позиций Брэгговских отражений.')
+        document.add_heading('8.4.2 Определение среднеквадратичного отклонения (СКО) случайной составляющей '
+                             'погрешности при измерении угловых позиций Брэгговских отражений.')
         par7 = document.add_paragraph('\n')
-        run = par7.add_run('    Таблица ' + str(header_timer + 1) + '. Среднеквадратичное отклонение положений')
+        par7.add_run('    Таблица ' + str(header_timer + 1) + '. Среднеквадратичное отклонение положений')
 
-        # создает таблицу для ско положений
+        # creates table for standard deviation of positions
         header_2 = ['hkl']
         for x in range(number_of_diffractograms):
             header_2.append(str(x + 1) + ' измер.')
@@ -927,19 +926,18 @@ def open_file():
             positions.append(round(sko_result_pos[peak_hkl[i]]['sqroot'], 5))
             positions_for_report.append(positions)
 
-        table1 = create_table(document, header_2, positions_for_report)
+        create_table(document, header_2, positions_for_report)
 
         par8 = document.add_paragraph()
-        run = par8.add_run(
+        par8.add_run(
             '\n    Значение СКО погрешности измерения угловых позиций Брэгговских отражений составляет ' + str(
                 round(sko_pos[2][1], 5)) + '.').font.bold = True
         p = document.add_paragraph()
         p.add_run().add_break(WD_BREAK.PAGE)
-        par9 = document.add_heading(
-            '    8.4.3 Среднеквадратичное отклонение случайной составляющей (СКО) погрешности определения '
-            'относительных интенсивностей')
+        document.add_heading('8.4.3 Среднеквадратичное отклонение случайной составляющей (СКО) погрешности '
+                             'определения относительных интенсивностей')
         par10 = document.add_paragraph('\n')
-        run = par10.add_run('    Таблица ' + str(header_timer + 2) + '. Среднеквадратичное отклонение интенсивностей')
+        par10.add_run('    Таблица ' + str(header_timer + 2) + '. Среднеквадратичное отклонение интенсивностей')
         header_3 = ['hkl']
 
         for x in range(number_of_diffractograms):
@@ -954,10 +952,10 @@ def open_file():
             intensities.append(round(sko_result_intens[peak_hkl[i]]['sko'], 4))
             intensities_for_report.append(intensities)
 
-        table1 = create_table(document, header_3, intensities_for_report)
+        create_table(document, header_3, intensities_for_report)
 
         par11 = document.add_paragraph()
-        run = par11.add_run(
+        par11.add_run(
             '\n    Значение СКО погрешности измерения угловых позиций Брэгговских отражений составляет ' + str(
                 round(sko_int[2][1], 4)) + '.').font.bold = True
 
