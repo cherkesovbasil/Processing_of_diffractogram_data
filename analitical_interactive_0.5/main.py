@@ -907,7 +907,7 @@ def open_file():
                      'максимумов составляет ' + str(round(abs_pos[2][1], 5)) + '°').font.bold = True
         p = document.add_paragraph()
         p.add_run().add_break(WD_BREAK.PAGE)
-        document.add_heading('8.4.2 Определение среднеквадратичного отклонения (СКО) случайной составляющей '
+        document.add_heading('    8.4.2 Определение среднеквадратичного отклонения (СКО) случайной составляющей '
                              'погрешности при измерении угловых позиций Брэгговских отражений.')
         par7 = document.add_paragraph('\n')
         par7.add_run('    Таблица ' + str(header_timer + 1) + '. Среднеквадратичное отклонение положений')
@@ -934,7 +934,7 @@ def open_file():
                 round(sko_pos[2][1], 5)) + '.').font.bold = True
         p = document.add_paragraph()
         p.add_run().add_break(WD_BREAK.PAGE)
-        document.add_heading('8.4.3 Среднеквадратичное отклонение случайной составляющей (СКО) погрешности '
+        document.add_heading('    8.4.3 Среднеквадратичное отклонение случайной составляющей (СКО) погрешности '
                              'определения относительных интенсивностей')
         par10 = document.add_paragraph('\n')
         par10.add_run('    Таблица ' + str(header_timer + 2) + '. Среднеквадратичное отклонение интенсивностей')
