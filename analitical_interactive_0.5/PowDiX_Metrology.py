@@ -201,7 +201,7 @@ def open_file():
         secondary_window.destroy()
 
     secondary_window = Tk()
-    secondary_window.title("Metrology")
+    secondary_window.title("Генератор отчётов")
 
     # disables the ability to zoom the page
     secondary_window.resizable(False, False)
@@ -443,7 +443,7 @@ def open_file():
         global first_init
         global error_for_visualisation
         if first_init:
-            error_for_visualisation = 'all'
+            error_for_visualisation = 'все значения'
             first_init = False
 
         def reload_errors():
@@ -501,7 +501,7 @@ def open_file():
                     absolute_error[peak_hkl[index]]['exp_data'].append(items[indexes.index(index)])
 
             # makes checkbuttons red if the absolute error is exceeded
-            if error_for_visualisation == 'absolute error':
+            if error_for_visualisation == 'абсолютная погрешн.':
                 timer_trig = 0
                 for keys, values in absolute_error.items():
                     if 'None information' not in values and values != [] and max(values['exp_data']) >= 0.02:
@@ -529,7 +529,7 @@ def open_file():
                 if first_index_red:
                     globals()['chckbtn%d' % indexes[0]].configure(fg='red')
 
-            elif error_for_visualisation == 'positions deviation':
+            elif error_for_visualisation == 'СКО положения':
                 # updates standard deviation of position
 
                 timer_trig = 0
@@ -547,7 +547,7 @@ def open_file():
                             globals()['chckbtn%d' % timer_trig].configure(fg='black')
                     timer_trig += 1
 
-            elif error_for_visualisation == 'intensities deviation':
+            elif error_for_visualisation == 'СКО интенсивности':
                 # updates standard deviation of intensities
 
                 timer_trig = 0
@@ -565,7 +565,7 @@ def open_file():
                             globals()['chckbtn%d' % timer_trig].configure(fg='black')
                     timer_trig += 1
 
-            elif error_for_visualisation == 'all':
+            elif error_for_visualisation == 'все значения':
                 # updates all errors
 
                 # makes all checkbuttons red
@@ -690,9 +690,9 @@ def open_file():
     global selected_error
     selected_error = tkinter.StringVar()
     error_combobox = ttk.Combobox(frame_for_checkbutton, textvariable=selected_error, width=18)
-    error_combobox['values'] = ('absolute error', 'positions deviation', 'intensities deviation', 'all', 'none')
+    error_combobox['values'] = ('абсолютная погрешн.', 'СКО положения', 'СКО интенсивности', 'все значения', 'снять метки')
     error_combobox['state'] = 'readonly'
-    error_combobox.set('select deviation type')
+    error_combobox.set('выбор отклонения')
     error_combobox.grid(row=timer, sticky=W, pady=4)
 
     def error_selected(event):

@@ -157,7 +157,7 @@ def pars(range_for_pars=pars_zone_numbers):
 
     # check for read data
     if len(data_position) < 2:
-        res = messagebox.askquestion('Data not found', 'Expand the search area?')
+        res = messagebox.askquestion('Данные не найдены', 'Расширить зону поиска в документе?')
 
         # if "yes", expands the search area and starts the process anew
         if res == 'yes':
