@@ -690,7 +690,8 @@ def open_file():
     global selected_error
     selected_error = tkinter.StringVar()
     error_combobox = ttk.Combobox(frame_for_checkbutton, textvariable=selected_error, width=18)
-    error_combobox['values'] = ('абсолютная погрешн.', 'СКО положения', 'СКО интенсивности', 'все значения', 'снять метки')
+    error_combobox['values'] = ('абсолютная погрешн.', 'СКО положения', 'СКО интенсивности', 'все значения',
+                                'снять метки')
     error_combobox['state'] = 'readonly'
     error_combobox.set('выбор отклонения')
     error_combobox.grid(row=timer, sticky=W, pady=4)
@@ -930,7 +931,7 @@ def open_file():
 
         par8 = document.add_paragraph()
         par8.add_run(
-            '\n    Значение СКО погрешности измерения угловых позиций Брэгговских отражений составляет ' + str(
+            '\n    Значение СКО погрешности измерения угловых позиций Брэгговских отражений составляет ±' + str(
                 round(sko_pos[2][1], 5)) + '.').font.bold = True
         p = document.add_paragraph()
         p.add_run().add_break(WD_BREAK.PAGE)
@@ -956,8 +957,8 @@ def open_file():
 
         par11 = document.add_paragraph()
         par11.add_run(
-            '\n    Значение СКО погрешности измерения угловых позиций Брэгговских отражений составляет ' + str(
-                round(sko_int[2][1], 4)) + '.').font.bold = True
+            '\n    Максимальное значение СКО погрешности определения относительных интенсивностей составляет ' + str(
+                round(sko_int[2][1], 4)) + '%.').font.bold = True
 
         document.save(filename.name)
 
