@@ -1,8 +1,22 @@
 """
-Secondary interface:
+##########################################################################################
+##   * This is almost my first project after 'hello world'. So if you really want       ##
+##     to understand what da hell is going on here, there is my contact info:           ##
+##       - +375 (25) 513-62-50                                                          ##
+##       - Cherkesov Basil                                                              ##
+##       - https://t.me/Ch_Basil                                                        ##
+##                                                                                      ##
+##   * I sincerely hope no one has to deal with this, but if you have to... I'm sorry)) ##
+##   * Thanks for the attention.                                                        ##
+##                                                                                      ##
+##   P.S. This code is not optimised, so be careful                                     ##
+##########################################################################################
+
+This module is responsible for:
+- generating secondary interface;
 - data postprocessing;
 - generating main GUI;
-- generating report (in development);
+- creating report.
 """
 
 import tkinter

@@ -3,7 +3,7 @@ Main logical part:
 - import data from 'excel';
 - reading and clearing data;
 - metrology calculation;
-- converting calculations to the same view for postprocessing;
+- converting calculations to the same view for postprocessing.
 """
 
 import math
