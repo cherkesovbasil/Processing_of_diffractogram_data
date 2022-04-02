@@ -10,5 +10,6 @@ Output file                 | Project folder generated with auto-py-to-exe. Read
 PowDiX_Metrology            | Contains project source files
 PowDiX_Metrology_Installer  | Contains the application installation file
 ____
-
+### Installation:
+* download installation file from https://github.com/cherkesovbasil/diffractogram_data_processing/raw/main/PowDiX_Metrology_Installer/PowDiX_Metrology.exe
 ____
