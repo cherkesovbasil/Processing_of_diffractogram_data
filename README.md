@@ -18,6 +18,6 @@ ____
 ### App description
 
 * main window contains "" and "" buttons
-
-<center>![Main_window image](https://github.com/cherkesovbasil/diffractogram_data_processing/raw/main/Output%20file/readme_images/main_window.png)</center>
-
+<p align="center">
+  ![Main_window image](https://github.com/cherkesovbasil/diffractogram_data_processing/raw/main/Output%20file/readme_images/main_window.png)
+</p>
