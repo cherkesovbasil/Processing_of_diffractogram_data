@@ -15,3 +15,9 @@ ____
 * if you do not have python version 3.0+ installed, you need to install it - [link to the official site](https://www.python.org/downloads/windows/)
 * run the installation file "PowDiX_Metrology.exe" and follow the simple instructions inside
 ____
+### App description
+
+* main window contains "" and "" buttons
+
+https://github.com/cherkesovbasil/diffractogram_data_processing/blob/main/Output%20file/readme_images/main_window.png
+
