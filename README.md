@@ -11,7 +11,7 @@ PowDiX_Metrology            | Contains project source files
 PowDiX_Metrology_Installer  | Contains the application installation file
 ____
 ### Installation:
-* [download installation file](https://github.com/cherkesovbasil/diffractogram_data_processing/raw/main/PowDiX_Metrology_Installer/PowDiX_Metrology.exe)
+* download installation file - [PowDiX_Metrology.exe](https://github.com/cherkesovbasil/diffractogram_data_processing/raw/main/PowDiX_Metrology_Installer/PowDiX_Metrology.exe)
 * if you do not have python version 3.0+ installed, you need to install it - [link to the official site](https://www.python.org/downloads/windows/)
 * run the installation file "PowDiX_Metrology.exe" and follow the simple instructions inside
 ____
