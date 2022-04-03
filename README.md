@@ -1,6 +1,6 @@
 # PowDiX Metrology
 ____
-### Software for processing data from diffractograms staticstic file (PowDixControl) and creating a metrology report
+### Software for processing data from diffractograms staticstic file and creating a metrology report (PowDixControl unit)
 ____
 ### Repository contains:
 Repository files| description
