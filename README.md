@@ -19,7 +19,7 @@ ____
 
 #### choose file window:
 <p align="center">
-  <img src= "https://github.com/cherkesovbasil/diffractogram_data_processing/raw/main/Output%20file/readme_images/main_window.png">
+  <img src= "https://github.com/cherkesovbasil/diffractogram_data_processing/raw/main/Output%20file/readme_images/main%20window.png">
 </p>
 
 * "select file" button opens the menu for selecting a file for further processing. A prerequisite is the excel format of file and the data contained therein from the processed diffractogram statistics of the PowDixControl application
@@ -27,7 +27,11 @@ ____
 
 #### main window:
 <p align="center">
-  <img src= "https://github.com/cherkesovbasil/diffractogram_data_processing/raw/main/Output%20file/readme_images/main_window.png">
+  <img src= "https://github.com/cherkesovbasil/diffractogram_data_processing/raw/main/Output%20file/readme_images/choose%20file%20window.png">
 </p>
 
-* 
+* "chose another file" button opens the selection of the file to be processed
+* "info" button unfolds the information part of the window, which contains side data
+* "report generation" buttton создает отчет по полученным данным в формате .docx - [пример](https://github.com/cherkesovbasil/diffractogram_data_processing/blob/main/Output%20file/readme_images/metrology_report.docx)
+* еhe block of checkboxes on the right allows you to filter unnecessary data, removing from the processed area the values outside the error limits (they are marked in red)
+* at the bottom left there is a menu to select the displayed error (values outside the error limits will be marked in red)
