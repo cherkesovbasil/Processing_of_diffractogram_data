@@ -18,7 +18,7 @@ ____
 ____
 ### App description
 
-#### choose file window:
+#### - Choose file window:
 <p align="center">
   <img src= "https://github.com/cherkesovbasil/diffractogram_data_processing/raw/main/Output%20file/readme_images/main%20window.png">
 </p>
@@ -26,7 +26,7 @@ ____
 * "select file" button opens the menu for selecting a file for further processing. A prerequisite is the excel format of file and the data contained therein from the processed diffractogram statistics of the PowDixControl application
 * "search area" button opens the possibility to expand the data search area in the selected file
 
-#### main window:
+#### - Main window:
 <p align="center">
   <img src= "https://github.com/cherkesovbasil/diffractogram_data_processing/raw/main/Output%20file/readme_images/choose%20file%20window.png">
 </p>
