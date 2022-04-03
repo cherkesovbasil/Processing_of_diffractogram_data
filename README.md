@@ -15,6 +15,7 @@ ____
 * download installation file - [PowDiX_Metrology.exe](https://github.com/cherkesovbasil/diffractogram_data_processing/raw/main/PowDiX_Metrology_Installer/PowDiX_Metrology.exe)
 * if you do not have python version 3.0+ installed, you need to install it - [link to the official site](https://www.python.org/downloads/windows/)
 * run the installation file "PowDiX_Metrology.exe" and follow the simple instructions inside
+* the file for the test run can be taken from this [link](https://github.com/cherkesovbasil/diffractogram_data_processing/blob/main/Example%20data%20for%20processing/1_expand_search.xlsx)
 ____
 ### App description
 
