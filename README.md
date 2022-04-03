@@ -55,8 +55,10 @@ ____
   <img src= "https://github.com/cherkesovbasil/diffractogram_data_processing/blob/main/Output%20file/readme_images/open%20file.png">
 </p>
 
-#### Result:
+### Result:
 
 <p align="center">
   <img src= "https://github.com/cherkesovbasil/diffractogram_data_processing/blob/main/Output%20file/readme_images/result.png">
 </p>
+
+## In case of any problems and errors, please inform the author of the program. Use freely. Any kind of modification of the source code only with the permission of the author
