@@ -66,4 +66,4 @@ ____
 
 ____
 
-## In case of any problems and errors, please inform the author of the program. Use freely. Any kind of modification of the source code only with the permission of the author
+## In case of any problems and errors, please inform the author of the app. Use freely. Any kind of modification of the source code only with the permission of the author
