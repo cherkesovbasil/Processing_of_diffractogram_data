@@ -32,6 +32,30 @@ ____
 
 * "chose another file" button opens the selection of the file to be processed
 * "info" button unfolds the information part of the window, which contains side data
-* "report generation" buttton создает отчет по полученным данным в формате .docx - [пример](https://github.com/cherkesovbasil/diffractogram_data_processing/blob/main/Output%20file/readme_images/metrology_report.docx)
-* еhe block of checkboxes on the right allows you to filter unnecessary data, removing from the processed area the values outside the error limits (they are marked in red)
+
+<p align="center">
+  <img src= "https://github.com/cherkesovbasil/diffractogram_data_processing/blob/main/Output%20file/readme_images/expended%20choose%20file%20window.png">
+</p>
+
+* "create report" buttton creates a report on the received data in the format ".docx" - [example](https://github.com/cherkesovbasil/diffractogram_data_processing/blob/main/Output%20file/readme_images/metrology_report.docx)
+* the block of checkboxes on the right allows you to filter unnecessary data, removing from the processed area the values outside the error limits (they are marked in red)
 * at the bottom left there is a menu to select the displayed error (values outside the error limits will be marked in red)
+
+____
+
+### Usage
+
+1) after the file selection window appears, select the required file
+2) in the rightmost menu of checkboxes select the required values for the report
+3) press the "create report" button and choose where to save the file
+4) After the file has been successfully saved, a menu will appear allowing you to open generated report:
+
+<p align="center">
+  <img src= "https://github.com/cherkesovbasil/diffractogram_data_processing/blob/main/Output%20file/readme_images/open%20file.png">
+</p>
+
+#### Result:
+
+<p align="center">
+  <img src= "https://github.com/cherkesovbasil/diffractogram_data_processing/blob/main/Output%20file/readme_images/result.png">
+</p>
