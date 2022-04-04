@@ -2,6 +2,11 @@
 ____
 ### Software for processing data from diffractograms staticstic file and creating a metrology report 
 (PowDixControl unit)
+
+<p align="center">
+  <img src= "https://github.com/cherkesovbasil/diffractogram_data_processing/blob/main/Output%20file/readme_images/setup%20and%20run.gif">
+</p>
+
 ____
 ### Repository contains:
 Repository files| description
